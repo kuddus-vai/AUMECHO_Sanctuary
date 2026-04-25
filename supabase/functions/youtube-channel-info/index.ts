@@ -154,7 +154,7 @@ Deno.serve(async (req: Request) => {
 
     const [stats, posts] = await Promise.all([
       fetchChannelStats(apiKey, channelId),
-      fetchCommunityPosts(CHANNEL_HANDLE, 5).catch((e) => {
+      fetchCommunityPosts(CHANNEL_HANDLE, 50).catch((e) => {
         console.warn("Community posts failed:", e);
         return [] as CommunityPost[];
       }),
