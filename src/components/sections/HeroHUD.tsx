@@ -28,8 +28,8 @@ export function HeroHUD() {
     [videos]
   );
   const recent = useMemo(() => {
-    if (!featured) return videos.slice(0, 4);
-    return videos.filter((v) => v.id !== featured.id).slice(0, 4);
+    if (!featured) return videos.slice(0, 12);
+    return videos.filter((v) => v.id !== featured.id).slice(0, 12);
   }, [videos, featured]);
 
   return (
