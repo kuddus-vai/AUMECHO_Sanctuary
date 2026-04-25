@@ -1,9 +1,10 @@
 import { motion, useReducedMotion, type Variants } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
-import { Play, Radio } from "lucide-react";
+import { Bell, MessageCircle, Play, ThumbsUp, Users } from "lucide-react";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { HudLabel } from "@/components/ui/HudLabel";
 import { useVideos } from "@/hooks/useVideos";
+import { useChannelInfo, type ChannelStats, type CommunityPost } from "@/hooks/useChannelInfo";
 import { useModal } from "@/store/modalStore";
 import { formatDateDDMMYYYY, timeAgo } from "@/lib/format";
 import type { Video } from "@/lib/types";
