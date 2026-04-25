@@ -3,9 +3,11 @@ import { Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
 const NAV_LINKS = [
+  { label: "Series", href: "#playlists" },
+  { label: "Shorts", href: "#shorts" },
   { label: "Archive", href: "#archive" },
   { label: "About", href: "#about" },
-  { label: "YouTube", href: "https://youtube.com/", external: true },
+  { label: "Facebook", href: "https://www.facebook.com/aumecho.official", external: true },
 ];
 
 export function Navigation() {

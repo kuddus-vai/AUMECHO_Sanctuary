@@ -1,4 +1,4 @@
-import { Instagram, Music2, Youtube } from "lucide-react";
+import { Facebook, Youtube } from "lucide-react";
 
 export function Footer() {
   return (
@@ -11,14 +11,11 @@ export function Footer() {
         </div>
 
         <div className="flex items-center gap-4">
-          <SocialLink href="https://youtube.com/" label="YouTube">
+          <SocialLink href="https://www.youtube.com/@AUMECHO" label="YouTube">
             <Youtube size={14} />
           </SocialLink>
-          <SocialLink href="https://instagram.com/" label="Instagram">
-            <Instagram size={14} />
-          </SocialLink>
-          <SocialLink href="https://open.spotify.com/" label="Spotify">
-            <Music2 size={14} />
+          <SocialLink href="https://www.facebook.com/aumecho.official" label="Facebook">
+            <Facebook size={14} />
           </SocialLink>
         </div>
 

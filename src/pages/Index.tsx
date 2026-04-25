@@ -9,9 +9,9 @@ const Index = () => {
   return (
     <RootLayout>
       <HeroHUD />
+      <ShortsShelf />
       <PlaylistsShelf />
       <VideoArchive />
-      <ShortsShelf />
       <AboutSection />
     </RootLayout>
   );
