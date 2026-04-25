@@ -334,11 +334,9 @@ function CommunityFeed({
           OPEN ↗
         </a>
       </div>
-      <div className="relative min-h-0 flex-1">
-        <ScrollCue direction="up" show={canScrollUp} />
+      <div className="relative min-h-0 flex-1 overflow-hidden">
         <ul
           ref={scrollerRef}
-          onScroll={updateScrollState}
           className="h-full space-y-1.5 overflow-y-auto overscroll-contain pr-2 scrollbar-visible"
         >
         {loading && posts.length === 0 ? (
@@ -369,20 +367,27 @@ function CommunityFeed({
           </>
         )}
         </ul>
-        <ScrollCue direction="down" show={canScrollDown} />
+        <ScrollCue direction="up" opacity={upOpacity} />
+        <ScrollCue direction="down" opacity={downOpacity} />
       </div>
     </div>
   );
 }
 
-function ScrollCue({ direction, show }: { direction: "up" | "down"; show: boolean }) {
+function ScrollCue({ direction, opacity }: { direction: "up" | "down"; opacity: number }) {
   const Icon = direction === "up" ? ChevronUp : ChevronDown;
+  const isUp = direction === "up";
   return (
     <div
       aria-hidden
-      className={`pointer-events-none absolute inset-x-0 ${direction === "up" ? "top-0 bg-gradient-to-b" : "bottom-0 bg-gradient-to-t"} z-10 flex h-9 items-center justify-center from-void/95 via-void/55 to-transparent transition-opacity duration-200 ${show ? "opacity-100" : "opacity-0"}`}
+      style={{ opacity }}
+      className={`pointer-events-none absolute inset-x-0 ${isUp ? "top-0 bg-gradient-to-b items-start" : "bottom-0 bg-gradient-to-t items-end"} z-10 flex h-10 justify-center from-void/95 via-void/60 to-transparent will-change-[opacity]`}
     >
-      <Icon size={14} className="text-cyan/80" />
+      <Icon
+        size={14}
+        className="text-cyan/90 animate-bounce"
+        style={{ animationDuration: "1.6s", margin: isUp ? "4px 0 0 0" : "0 0 4px 0" }}
+      />
     </div>
   );
 }
