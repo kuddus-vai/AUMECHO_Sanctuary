@@ -22,6 +22,8 @@ const fadeUp: Variants = {
 export function HeroHUD() {
   const { videos, loading } = useVideos();
   const reduced = useReducedMotion();
+  const featuredColRef = useRef<HTMLDivElement | null>(null);
+  const [sideMaxH, setSideMaxH] = useState<number | undefined>(undefined);
 
   const featured: Video | undefined = useMemo(
     () => videos.find((v) => v.is_featured) ?? videos[0],
@@ -31,6 +33,24 @@ export function HeroHUD() {
     if (!featured) return videos.slice(0, 12);
     return videos.filter((v) => v.id !== featured.id).slice(0, 12);
   }, [videos, featured]);
+
+  // Match side panels' max-height to the center (featured) panel height,
+  // so the channel + recent feeds scroll internally instead of stretching the row.
+  useEffect(() => {
+    const el = featuredColRef.current;
+    if (!el) return;
+    const apply = () => setSideMaxH(el.getBoundingClientRect().height);
+    apply();
+    const ro = new ResizeObserver(apply);
+    ro.observe(el);
+    window.addEventListener("resize", apply);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", apply);
+    };
+  }, [featured?.id]);
+
+  const sideStyle = sideMaxH ? { maxHeight: `${sideMaxH}px` } : undefined;
 
   return (
     <section
@@ -64,16 +84,24 @@ export function HeroHUD() {
           <StatusBar />
         </motion.div>
 
-        <div className="grid flex-1 grid-cols-1 gap-3 lg:grid-cols-12">
-          <motion.div variants={fadeUp} className="lg:col-span-3">
+        <div className="grid flex-1 grid-cols-1 items-start gap-3 lg:grid-cols-12">
+          <motion.div
+            variants={fadeUp}
+            className="lg:col-span-3 lg:overflow-hidden"
+            style={sideStyle}
+          >
             <ChannelPanel />
           </motion.div>
 
-          <motion.div variants={fadeUp} className="lg:col-span-6">
+          <motion.div ref={featuredColRef} variants={fadeUp} className="lg:col-span-6">
             <FeaturedPanel video={featured} loading={loading} />
           </motion.div>
 
-          <motion.div variants={fadeUp} className="lg:col-span-3">
+          <motion.div
+            variants={fadeUp}
+            className="lg:col-span-3 lg:overflow-hidden"
+            style={sideStyle}
+          >
             <RecentPanel videos={recent} loading={loading} />
           </motion.div>
         </div>
