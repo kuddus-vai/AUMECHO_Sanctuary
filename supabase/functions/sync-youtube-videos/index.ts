@@ -48,10 +48,12 @@ function isoDurationToHuman(iso?: string) {
 
 function inferCategory(title: string, description: string): string {
   const t = `${title} ${description}`.toLowerCase();
-  if (t.includes("playlist")) return "playlist";
-  if (t.includes("mix")) return "mix";
-  if (t.includes("ambient")) return "ambient";
-  return "lofi";
+  if (/(aarti|aarati|आरती)/.test(t)) return "aarti";
+  if (/(mantra|chant|jaap|jaap|japa|मंत्र)/.test(t)) return "mantra";
+  if (/(kirtan|कीर्तन)/.test(t)) return "kirtan";
+  if (/(katha|pravachan|discourse|कथा)/.test(t)) return "katha";
+  if (/(playlist|collection|jukebox)/.test(t)) return "playlist";
+  return "bhajan";
 }
 
 Deno.serve(async (req) => {
