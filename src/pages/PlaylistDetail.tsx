@@ -5,6 +5,7 @@ import { ArrowLeft, ExternalLink, ListMusic, Play } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useModal } from "@/store/modalStore";
 import { usePlaylists } from "@/hooks/usePlaylists";
+import { useChannelInfo } from "@/hooks/useChannelInfo";
 import { RootLayout } from "@/components/layout/RootLayout";
 import { HudLabel } from "@/components/ui/HudLabel";
 import { SkeletonCard } from "@/components/ui/SkeletonCard";
