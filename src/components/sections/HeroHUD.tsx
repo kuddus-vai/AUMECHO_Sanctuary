@@ -1,4 +1,4 @@
-import { motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion, type Variants } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
 import { Play, Radio } from "lucide-react";
 import { GlassCard } from "@/components/ui/GlassCard";
@@ -8,13 +8,13 @@ import { useModal } from "@/store/modalStore";
 import { formatDateDDMMYYYY, timeAgo } from "@/lib/format";
 import type { Video } from "@/lib/types";
 
-const fadeUp = {
+const fadeUp: Variants = {
   hidden: { opacity: 0, y: 20, filter: "blur(8px)" },
   visible: {
     opacity: 1,
     y: 0,
     filter: "blur(0px)",
-    transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] },
+    transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] },
   },
 };
 
