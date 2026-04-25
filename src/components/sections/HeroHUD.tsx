@@ -1,6 +1,6 @@
 import { motion, useReducedMotion, type Variants } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Bell, MessageCircle, Play, ThumbsUp } from "lucide-react";
+import { Bell, ChevronDown, ChevronUp, MessageCircle, Play, ThumbsUp } from "lucide-react";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { HudLabel } from "@/components/ui/HudLabel";
 import { useVideos } from "@/hooks/useVideos";
@@ -50,7 +50,7 @@ export function HeroHUD() {
     };
   }, [featured?.id]);
 
-  const sideStyle = sideMaxH ? { maxHeight: `${sideMaxH}px` } : undefined;
+  const sideStyle = sideMaxH ? { height: `${sideMaxH}px`, maxHeight: `${sideMaxH}px` } : undefined;
 
   return (
     <section
@@ -87,7 +87,7 @@ export function HeroHUD() {
         <div className="grid flex-1 grid-cols-1 items-start gap-3 lg:grid-cols-12">
           <motion.div
             variants={fadeUp}
-            className="lg:col-span-3 lg:overflow-hidden"
+            className="min-h-0 lg:col-span-3 lg:overflow-hidden"
             style={sideStyle}
           >
             <ChannelPanel />
@@ -99,7 +99,7 @@ export function HeroHUD() {
 
           <motion.div
             variants={fadeUp}
-            className="lg:col-span-3 lg:overflow-hidden"
+            className="min-h-0 lg:col-span-3 lg:overflow-hidden"
             style={sideStyle}
           >
             <RecentPanel videos={recent} loading={loading} />
