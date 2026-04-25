@@ -7,17 +7,20 @@ import { VideoCard } from "@/components/ui/VideoCard";
 import { useVideos } from "@/hooks/useVideos";
 import type { VideoCategory } from "@/lib/types";
 
-const FILTERS: { key: "all" | VideoCategory; label: string }[] = [
+type FilterKey = "all" | Exclude<VideoCategory, "shorts" | "playlist">;
+
+const FILTERS: { key: FilterKey; label: string }[] = [
   { key: "all", label: "ALL" },
-  { key: "lofi", label: "LOFI" },
-  { key: "ambient", label: "AMBIENT" },
-  { key: "mix", label: "MIX" },
-  { key: "playlist", label: "PLAYLIST" },
+  { key: "bhajan", label: "BHAJAN" },
+  { key: "mantra", label: "MANTRA" },
+  { key: "aarti", label: "AARTI" },
+  { key: "kirtan", label: "KIRTAN" },
+  { key: "katha", label: "KATHA" },
+  { key: "gita", label: "GITA" },
 ];
 
 /**
- * Bento grid sizing pattern. Each tuple = [colSpan, rowSpanIndex]
- * rowSpanIndex maps to a height class. Repeats every 8 cards.
+ * Bento grid sizing pattern for long-form videos.
  */
 const PATTERN = [
   { col: "lg:col-span-8", height: "lg:h-[320px]", layout: "default" as const },
@@ -30,17 +33,29 @@ const PATTERN = [
   { col: "lg:col-span-12", height: "lg:h-[220px]", layout: "panoramic" as const },
 ];
 
+const PAGE_SIZE = 24;
+
 export function VideoArchive() {
   const { videos, loading } = useVideos();
-  const [filter, setFilter] = useState<(typeof FILTERS)[number]["key"]>("all");
+  const [filter, setFilter] = useState<FilterKey>("all");
+  const [visible, setVisible] = useState(PAGE_SIZE);
   const reduced = useReducedMotion();
   const headerRef = useRef<HTMLDivElement>(null);
   const inView = useInView(headerRef, { once: true, margin: "-80px" });
 
+  // Long-form only — Shorts have their own shelf below
+  const longForm = useMemo(
+    () => videos.filter((v) => !v.is_short && v.category !== "shorts"),
+    [videos]
+  );
+
   const filtered = useMemo(() => {
-    if (filter === "all") return videos;
-    return videos.filter((v) => v.category === filter);
-  }, [videos, filter]);
+    const base = filter === "all" ? longForm : longForm.filter((v) => v.category === filter);
+    return base;
+  }, [longForm, filter]);
+
+  const slice = filtered.slice(0, visible);
+  const canLoadMore = filtered.length > visible;
 
   return (
     <section
@@ -57,15 +72,19 @@ export function VideoArchive() {
         <div className="flex items-center gap-3">
           <HudLabel className="text-[10px]">SIGNAL.ARCHIVE</HudLabel>
           <div className="h-px flex-1 bg-[rgba(255,255,255,0.08)]" />
+          <span className="font-mono text-[10px] tracking-hud text-slate">
+            {longForm.length} TRANSMISSIONS
+          </span>
         </div>
 
         <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
           <div>
             <h2 className="text-3xl font-semibold tracking-tighter text-pure sm:text-4xl">
-              All Transmissions
+              All Bhajans
             </h2>
             <p className="mt-2 max-w-md text-sm text-ghost">
-              The complete archive. Filter by frequency, drift through the catalogue.
+              The complete devotional archive. Filter by frequency — bhajan, mantra, aarti,
+              kirtan, katha, or the Bhagavad Gita series.
             </p>
           </div>
 
@@ -75,7 +94,10 @@ export function VideoArchive() {
               return (
                 <button
                   key={f.key}
-                  onClick={() => setFilter(f.key)}
+                  onClick={() => {
+                    setFilter(f.key);
+                    setVisible(PAGE_SIZE);
+                  }}
                   className={cn(
                     "rounded-full border px-3 py-1.5 font-mono text-[10px] tracking-hud transition-[background-color,border-color,color,box-shadow] duration-300",
                     active
@@ -114,7 +136,7 @@ export function VideoArchive() {
             transition={{ duration: 0.3 }}
             className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-12"
           >
-            {filtered.map((v, i) => {
+            {slice.map((v, i) => {
               const p = PATTERN[i % PATTERN.length];
               return (
                 <VideoCard
@@ -133,6 +155,17 @@ export function VideoArchive() {
             )}
           </motion.div>
         </AnimatePresence>
+      )}
+
+      {canLoadMore && !loading && (
+        <div className="mt-10 flex justify-center">
+          <button
+            onClick={() => setVisible((v) => v + PAGE_SIZE)}
+            className="rounded-full border border-[rgba(0,242,255,0.3)] bg-[rgba(0,242,255,0.05)] px-6 py-2.5 font-mono text-[10px] tracking-hud text-cyan transition-all duration-300 hover:bg-[rgba(0,242,255,0.12)] hover:shadow-glow-sm"
+          >
+            LOAD MORE — {filtered.length - visible} REMAINING
+          </button>
+        </div>
       )}
     </section>
   );
