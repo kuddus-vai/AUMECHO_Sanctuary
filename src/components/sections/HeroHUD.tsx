@@ -349,7 +349,7 @@ function RecentPanel({ videos, loading }: { videos: Video[]; loading: boolean })
 /* ---------------- Ticker ---------------- */
 function TickerBar() {
   const segment =
-    "AUMECHO  ✦  ATMOSPHERIC MUSIC  ✦  LOFI FREQUENCIES  ✦  DIGITAL SANCTUARY  ✦  NOW STREAMING  ✦  ∞  ∞  ∞  ✦  ";
+    "AUMECHO  ✦  DEVOTIONAL BHAJANS  ✦  SACRED MANTRAS  ✦  BHAGAVAD GITA  ✦  AARTI · KIRTAN · KATHA  ✦  ∞  ∞  ∞  ✦  ";
   return (
     <div className="relative h-9 overflow-hidden border-y border-[rgba(255,255,255,0.06)]">
       <div className="flex h-full animate-marquee items-center whitespace-nowrap font-mono text-[10px] tracking-hud text-ghost">
