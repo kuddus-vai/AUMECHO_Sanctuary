@@ -480,16 +480,37 @@ function Corner({ className }: { className?: string }) {
 /* ---------------- Right: RECENT.LOG ---------------- */
 function RecentPanel({ videos, loading }: { videos: Video[]; loading: boolean }) {
   const { openModal } = useModal();
+  const [canScrollUp, setCanScrollUp] = useState(false);
+  const [canScrollDown, setCanScrollDown] = useState(false);
+  const scrollerRef = useRef<HTMLUListElement | null>(null);
+
+  const updateScrollState = () => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    setCanScrollUp(el.scrollTop > 2);
+    setCanScrollDown(el.scrollTop + el.clientHeight < el.scrollHeight - 2);
+  };
+
+  useEffect(() => {
+    updateScrollState();
+  }, [loading, videos.length]);
+
   return (
     <GlassCard className="h-full p-4">
-      <div className="flex h-full flex-col gap-3">
+      <div className="flex h-full min-h-0 flex-col gap-3">
         <div className="flex items-center justify-between">
           <HudLabel className="text-[9px]">RECENT.LOG</HudLabel>
           <span className="font-mono text-[9px] tracking-hud text-slate">
             {loading ? "…" : `${videos.length}`}
           </span>
         </div>
-        <ul className="flex-1 space-y-1.5 overflow-y-auto scrollbar-thin pr-1">
+        <div className="relative min-h-0 flex-1">
+          <ScrollCue direction="up" show={canScrollUp} />
+          <ul
+            ref={scrollerRef}
+            onScroll={updateScrollState}
+            className="h-full space-y-1.5 overflow-y-auto overscroll-contain pr-2 scrollbar-visible"
+          >
           {(loading ? Array.from({ length: 4 }) : videos).map((v, i) => {
             const video = v as Video | undefined;
             return (
@@ -524,7 +545,9 @@ function RecentPanel({ videos, loading }: { videos: Video[]; loading: boolean })
               </li>
             );
           })}
-        </ul>
+          </ul>
+          <ScrollCue direction="down" show={canScrollDown} />
+        </div>
       </div>
     </GlassCard>
   );
