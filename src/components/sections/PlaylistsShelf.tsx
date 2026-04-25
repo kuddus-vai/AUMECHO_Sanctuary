@@ -124,7 +124,8 @@ export function PlaylistsShelf() {
               </div>
             </div>
           </motion.a>
-        ))}
+          );
+        })}
       </div>
     </section>
   );
