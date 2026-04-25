@@ -13,6 +13,8 @@ const NAV_LINKS = [
 
 export function Navigation() {
   const [open, setOpen] = useState(false);
+  const { stats } = useChannelInfo();
+  const logoUrl = stats?.thumbnail;
 
   useEffect(() => {
     if (!open) return;
