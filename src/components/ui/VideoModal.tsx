@@ -88,6 +88,17 @@ export function VideoModal() {
                     </h2>
                   </div>
                   <div className="flex shrink-0 items-center gap-2">
+                    <a
+                      href={SUBSCRIBE_URL}
+                      target="_blank"
+                      rel="noreferrer"
+                      data-cursor="pointer"
+                      aria-label="Subscribe to AUMECHO on YouTube"
+                      className="group hidden h-9 items-center gap-2 rounded-full border border-[rgba(255,0,0,0.45)] bg-[rgba(255,0,0,0.12)] px-3.5 font-mono text-[10px] uppercase tracking-hud text-pure transition-[background-color,border-color,box-shadow] duration-300 hover:bg-[rgba(255,0,0,0.22)] hover:border-[rgba(255,0,0,0.7)] hover:shadow-[0_0_24px_rgba(255,0,0,0.35)] sm:inline-flex"
+                    >
+                      <Bell size={12} className="transition-transform duration-300 group-hover:rotate-[-12deg]" />
+                      <span>Subscribe</span>
+                    </a>
                     <ModalIconBtn onClick={toggleFocusMode} label="Focus mode">
                       {focusMode ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
                     </ModalIconBtn>
