@@ -122,4 +122,22 @@
     background-size: 200% 100%;
     animation: shimmer 1.6s linear infinite;
   }
+  .scrollbar-visible {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--primary) / 0.6) hsl(var(--foreground) / 0.08);
+  }
+  .scrollbar-visible::-webkit-scrollbar {
+    width: 8px;
+  }
+  .scrollbar-visible::-webkit-scrollbar-track {
+    background: hsl(var(--foreground) / 0.08);
+    border-radius: 999px;
+  }
+  .scrollbar-visible::-webkit-scrollbar-thumb {
+    background: hsl(var(--primary) / 0.6);
+    border-radius: 999px;
+  }
+  .scrollbar-visible::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--primary) / 0.9);
+  }
 }

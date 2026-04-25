@@ -1,6 +1,6 @@
 import { motion, useReducedMotion, type Variants } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Bell, MessageCircle, Play, ThumbsUp } from "lucide-react";
+import { Bell, ChevronDown, ChevronUp, MessageCircle, Play, ThumbsUp } from "lucide-react";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { HudLabel } from "@/components/ui/HudLabel";
 import { useVideos } from "@/hooks/useVideos";
@@ -50,7 +50,7 @@ export function HeroHUD() {
     };
   }, [featured?.id]);
 
-  const sideStyle = sideMaxH ? { maxHeight: `${sideMaxH}px` } : undefined;
+  const sideStyle = sideMaxH ? { height: `${sideMaxH}px`, maxHeight: `${sideMaxH}px` } : undefined;
 
   return (
     <section
@@ -87,7 +87,7 @@ export function HeroHUD() {
         <div className="grid flex-1 grid-cols-1 items-start gap-3 lg:grid-cols-12">
           <motion.div
             variants={fadeUp}
-            className="lg:col-span-3 lg:overflow-hidden"
+            className="min-h-0 lg:col-span-3 lg:overflow-hidden"
             style={sideStyle}
           >
             <ChannelPanel />
@@ -99,7 +99,7 @@ export function HeroHUD() {
 
           <motion.div
             variants={fadeUp}
-            className="lg:col-span-3 lg:overflow-hidden"
+            className="min-h-0 lg:col-span-3 lg:overflow-hidden"
             style={sideStyle}
           >
             <RecentPanel videos={recent} loading={loading} />
@@ -241,12 +241,26 @@ function CommunityFeed({
 }) {
   const PAGE = 5;
   const [visible, setVisible] = useState(PAGE);
+  const [canScrollUp, setCanScrollUp] = useState(false);
+  const [canScrollDown, setCanScrollDown] = useState(false);
+  const scrollerRef = useRef<HTMLUListElement | null>(null);
   const sentinelRef = useRef<HTMLLIElement | null>(null);
+
+  const updateScrollState = () => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    setCanScrollUp(el.scrollTop > 2);
+    setCanScrollDown(el.scrollTop + el.clientHeight < el.scrollHeight - 2);
+  };
 
   // Reset paging when the underlying list changes (e.g. new fetch).
   useEffect(() => {
     setVisible(PAGE);
   }, [posts.length]);
+
+  useEffect(() => {
+    updateScrollState();
+  }, [loading, posts.length, visible]);
 
   // Infinite scroll via IntersectionObserver on a sentinel inside the scroll container.
   useEffect(() => {
@@ -280,7 +294,13 @@ function CommunityFeed({
           OPEN ↗
         </a>
       </div>
-      <ul className="flex-1 space-y-1.5 overflow-y-auto scrollbar-thin pr-1">
+      <div className="relative min-h-0 flex-1">
+        <ScrollCue direction="up" show={canScrollUp} />
+        <ul
+          ref={scrollerRef}
+          onScroll={updateScrollState}
+          className="h-full space-y-1.5 overflow-y-auto overscroll-contain pr-2 scrollbar-visible"
+        >
         {loading && posts.length === 0 ? (
           Array.from({ length: 5 }).map((_, i) => (
             <li key={i} className="h-[60px] rounded-md text-shimmer" />
@@ -308,7 +328,21 @@ function CommunityFeed({
             )}
           </>
         )}
-      </ul>
+        </ul>
+        <ScrollCue direction="down" show={canScrollDown} />
+      </div>
+    </div>
+  );
+}
+
+function ScrollCue({ direction, show }: { direction: "up" | "down"; show: boolean }) {
+  const Icon = direction === "up" ? ChevronUp : ChevronDown;
+  return (
+    <div
+      aria-hidden
+      className={`pointer-events-none absolute inset-x-0 ${direction === "up" ? "top-0 bg-gradient-to-b" : "bottom-0 bg-gradient-to-t"} z-10 flex h-9 items-center justify-center from-void/95 via-void/55 to-transparent transition-opacity duration-200 ${show ? "opacity-100" : "opacity-0"}`}
+    >
+      <Icon size={14} className="text-cyan/80" />
     </div>
   );
 }
@@ -446,16 +480,37 @@ function Corner({ className }: { className?: string }) {
 /* ---------------- Right: RECENT.LOG ---------------- */
 function RecentPanel({ videos, loading }: { videos: Video[]; loading: boolean }) {
   const { openModal } = useModal();
+  const [canScrollUp, setCanScrollUp] = useState(false);
+  const [canScrollDown, setCanScrollDown] = useState(false);
+  const scrollerRef = useRef<HTMLUListElement | null>(null);
+
+  const updateScrollState = () => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    setCanScrollUp(el.scrollTop > 2);
+    setCanScrollDown(el.scrollTop + el.clientHeight < el.scrollHeight - 2);
+  };
+
+  useEffect(() => {
+    updateScrollState();
+  }, [loading, videos.length]);
+
   return (
     <GlassCard className="h-full p-4">
-      <div className="flex h-full flex-col gap-3">
+      <div className="flex h-full min-h-0 flex-col gap-3">
         <div className="flex items-center justify-between">
           <HudLabel className="text-[9px]">RECENT.LOG</HudLabel>
           <span className="font-mono text-[9px] tracking-hud text-slate">
             {loading ? "…" : `${videos.length}`}
           </span>
         </div>
-        <ul className="flex-1 space-y-1.5 overflow-y-auto scrollbar-thin pr-1">
+        <div className="relative min-h-0 flex-1">
+          <ScrollCue direction="up" show={canScrollUp} />
+          <ul
+            ref={scrollerRef}
+            onScroll={updateScrollState}
+            className="h-full space-y-1.5 overflow-y-auto overscroll-contain pr-2 scrollbar-visible"
+          >
           {(loading ? Array.from({ length: 4 }) : videos).map((v, i) => {
             const video = v as Video | undefined;
             return (
@@ -490,7 +545,9 @@ function RecentPanel({ videos, loading }: { videos: Video[]; loading: boolean })
               </li>
             );
           })}
-        </ul>
+          </ul>
+          <ScrollCue direction="down" show={canScrollDown} />
+        </div>
       </div>
     </GlassCard>
   );
