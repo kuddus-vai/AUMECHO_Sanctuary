@@ -111,7 +111,7 @@ function StatusBar() {
         <span className="text-pure">LIVE</span>
       </div>
       <div className="hidden truncate text-slate sm:block">
-        AUMECHO SANCTUARY <span className="text-cyan/60">//</span> ATMOSPHERIC SIGNAL ACTIVE
+        AUMECHO SANCTUARY <span className="text-cyan/60">//</span> DEVOTIONAL SIGNAL ACTIVE
       </div>
       <div className="text-pure tabular-nums">{time || "--:--:--"}</div>
     </div>
