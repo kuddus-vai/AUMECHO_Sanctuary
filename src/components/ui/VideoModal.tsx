@@ -1,9 +1,12 @@
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useEffect } from "react";
 import { createPortal } from "react-dom";
-import { ExternalLink, Maximize2, Minimize2, X } from "lucide-react";
+import { Bell, ExternalLink, Maximize2, Minimize2, X } from "lucide-react";
 import { useModal } from "@/store/modalStore";
 import { formatDateLong, formatViewCount } from "@/lib/format";
+
+const SUBSCRIBE_URL =
+  "https://www.youtube.com/@AUMECHO?sub_confirmation=1";
 
 export function VideoModal() {
   const { activeVideo, closeModal, focusMode, toggleFocusMode } = useModal();
