@@ -272,10 +272,8 @@ const PlaylistDetail = () => {
             </div>
           )}
         </section>
-      </main>
-
-      <Footer />
-    </div>
+      </div>
+    </RootLayout>
   );
 };
 
