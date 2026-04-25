@@ -51,9 +51,9 @@ export function ShortsShelf() {
       className="relative z-10 mx-auto max-w-[1400px] px-4 py-16 sm:px-6 sm:py-20 lg:px-8"
     >
       <motion.div
-        ref={ref}
         initial={reduced ? { opacity: 0 } : { opacity: 0, y: 16 }}
-        animate={inView ? { opacity: 1, y: 0 } : undefined}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-80px" }}
         transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
         className="mb-8 space-y-4"
       >
