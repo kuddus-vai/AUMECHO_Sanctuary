@@ -1,1 +1,0 @@
-DELETE FROM public.videos WHERE youtube_id IN ('4xDzrJKXOOY', 'lTRiuFIWV54');
