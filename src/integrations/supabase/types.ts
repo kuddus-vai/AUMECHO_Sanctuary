@@ -14,7 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      videos: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          duration: string | null
+          id: string
+          is_featured: boolean
+          published_at: string
+          thumbnail_url: string
+          title: string
+          view_count: number | null
+          youtube_id: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          duration?: string | null
+          id?: string
+          is_featured?: boolean
+          published_at: string
+          thumbnail_url: string
+          title: string
+          view_count?: number | null
+          youtube_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          duration?: string | null
+          id?: string
+          is_featured?: boolean
+          published_at?: string
+          thumbnail_url?: string
+          title?: string
+          view_count?: number | null
+          youtube_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
