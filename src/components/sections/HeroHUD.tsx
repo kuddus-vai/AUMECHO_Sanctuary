@@ -211,6 +211,34 @@ function CommunityFeed({
   loading: boolean;
   handle: string;
 }) {
+  const PAGE = 5;
+  const [visible, setVisible] = useState(PAGE);
+  const sentinelRef = useRef<HTMLLIElement | null>(null);
+
+  // Reset paging when the underlying list changes (e.g. new fetch).
+  useEffect(() => {
+    setVisible(PAGE);
+  }, [posts.length]);
+
+  // Infinite scroll via IntersectionObserver on a sentinel inside the scroll container.
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          setVisible((v) => Math.min(v + PAGE, posts.length));
+        }
+      },
+      { root: el.parentElement, rootMargin: "120px 0px", threshold: 0 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [posts.length]);
+
+  const shown = posts.slice(0, visible);
+  const hasMore = visible < posts.length;
+
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-2">
       <div className="flex items-center justify-between">
@@ -225,17 +253,33 @@ function CommunityFeed({
         </a>
       </div>
       <ul className="flex-1 space-y-1.5 overflow-y-auto scrollbar-thin pr-1">
-        {loading && posts.length === 0
-          ? Array.from({ length: 5 }).map((_, i) => (
-              <li key={i} className="h-[60px] rounded-md text-shimmer" />
-            ))
-          : posts.length === 0
-          ? (
-            <li className="rounded-md border border-dashed border-[rgba(255,255,255,0.08)] p-3 text-center font-mono text-[9px] tracking-hud text-slate">
-              NO RECENT POSTS
-            </li>
-          )
-          : posts.map((p) => <CommunityPostRow key={p.id} post={p} handle={handle} />)}
+        {loading && posts.length === 0 ? (
+          Array.from({ length: 5 }).map((_, i) => (
+            <li key={i} className="h-[60px] rounded-md text-shimmer" />
+          ))
+        ) : posts.length === 0 ? (
+          <li className="rounded-md border border-dashed border-[rgba(255,255,255,0.08)] p-3 text-center font-mono text-[9px] tracking-hud text-slate">
+            NO RECENT POSTS
+          </li>
+        ) : (
+          <>
+            {shown.map((p) => (
+              <CommunityPostRow key={p.id} post={p} handle={handle} />
+            ))}
+            {hasMore && (
+              <li
+                ref={sentinelRef}
+                className="h-[40px] rounded-md text-shimmer"
+                aria-hidden
+              />
+            )}
+            {!hasMore && posts.length > PAGE && (
+              <li className="py-2 text-center font-mono text-[9px] tracking-hud text-slate">
+                — END OF FEED —
+              </li>
+            )}
+          </>
+        )}
       </ul>
     </div>
   );
