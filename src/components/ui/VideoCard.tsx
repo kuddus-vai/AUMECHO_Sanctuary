@@ -15,8 +15,6 @@ interface VideoCardProps {
 }
 
 export function VideoCard({ video, index, className, layout = "default" }: VideoCardProps) {
-  const ref = useRef<HTMLButtonElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-50px" });
   const reduced = useReducedMotion();
   const { openModal } = useModal();
   const [imgLoaded, setImgLoaded] = useState(false);
@@ -25,17 +23,15 @@ export function VideoCard({ video, index, className, layout = "default" }: Video
 
   return (
     <motion.button
-      ref={ref}
       data-cursor="video"
       onClick={() => openModal(video)}
       initial={reduced ? { opacity: 0 } : { opacity: 0, y: 32, scale: 0.97 }}
-      animate={
-        inView
-          ? reduced
-            ? { opacity: 1 }
-            : { opacity: 1, y: 0, scale: 1 }
-          : undefined
+      whileInView={
+        reduced
+          ? { opacity: 1 }
+          : { opacity: 1, y: 0, scale: 1 }
       }
+      viewport={{ once: true, margin: "-50px" }}
       transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: stagger }}
       whileHover={{ y: -2 }}
       whileTap={{ scale: 0.985 }}
