@@ -1,14 +1,11 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, ExternalLink, ListMusic, Play } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useModal } from "@/store/modalStore";
 import { usePlaylists } from "@/hooks/usePlaylists";
-import { CustomCursor } from "@/components/ui/CustomCursor";
-import { Navigation } from "@/components/layout/Navigation";
-import { Footer } from "@/components/layout/Footer";
-import { VideoModal } from "@/components/ui/VideoModal";
+import { RootLayout } from "@/components/layout/RootLayout";
 import { HudLabel } from "@/components/ui/HudLabel";
 import { SkeletonCard } from "@/components/ui/SkeletonCard";
 import { formatDateDDMMYYYY, formatViewCount } from "@/lib/format";
