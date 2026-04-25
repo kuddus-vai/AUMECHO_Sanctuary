@@ -33,14 +33,21 @@ interface VideoStat {
   contentDetails?: { duration?: string };
 }
 
-function isoDurationToHuman(iso?: string) {
+function isoDurationToSeconds(iso?: string): number | null {
   if (!iso) return null;
-  // PT1H12M34S → 1:12:34
   const match = iso.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
   if (!match) return null;
   const h = parseInt(match[1] || "0", 10);
   const m = parseInt(match[2] || "0", 10);
   const s = parseInt(match[3] || "0", 10);
+  return h * 3600 + m * 60 + s;
+}
+
+function secondsToHuman(total: number | null): string | null {
+  if (total === null) return null;
+  const h = Math.floor(total / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = total % 60;
   const pad = (n: number) => String(n).padStart(2, "0");
   if (h > 0) return `${h}:${pad(m)}:${pad(s)}`;
   return `${m}:${pad(s)}`;
@@ -48,11 +55,11 @@ function isoDurationToHuman(iso?: string) {
 
 function inferCategory(title: string, description: string): string {
   const t = `${title} ${description}`.toLowerCase();
+  if (/(gita|गीता|geeta)/.test(t)) return "gita";
   if (/(aarti|aarati|आरती)/.test(t)) return "aarti";
-  if (/(mantra|chant|jaap|jaap|japa|मंत्र)/.test(t)) return "mantra";
+  if (/(mantra|chant|jaap|japa|मंत्र|stotra|stotram|sloka|shloka)/.test(t)) return "mantra";
   if (/(kirtan|कीर्तन)/.test(t)) return "kirtan";
-  if (/(katha|pravachan|discourse|कथा)/.test(t)) return "katha";
-  if (/(playlist|collection|jukebox)/.test(t)) return "playlist";
+  if (/(katha|pravachan|discourse|कथा|story)/.test(t)) return "katha";
   return "bhajan";
 }
 
