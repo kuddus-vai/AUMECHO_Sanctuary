@@ -1,5 +1,5 @@
-import { motion, useInView, useReducedMotion } from "framer-motion";
-import { useRef, useState } from "react";
+import { motion, useReducedMotion } from "framer-motion";
+import { useState } from "react";
 import { Play } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatDateDDMMYYYY, formatViewCount } from "@/lib/format";
