@@ -94,26 +94,41 @@ Deno.serve(async (req) => {
       );
     }
 
-    // 2. Fetch latest playlist items (up to 50)
-    const playlistRes = await fetch(
-      `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId=${uploadsId}&key=${apiKey}`
-    );
-    const playlistData = await playlistRes.json();
-    const items: PlaylistItem[] = playlistData?.items ?? [];
+    // 2. Fetch ALL playlist items (paginate through every page)
+    const items: PlaylistItem[] = [];
+    let pageToken: string | undefined = undefined;
+    do {
+      const url = new URL("https://www.googleapis.com/youtube/v3/playlistItems");
+      url.searchParams.set("part", "snippet");
+      url.searchParams.set("maxResults", "50");
+      url.searchParams.set("playlistId", uploadsId);
+      url.searchParams.set("key", apiKey);
+      if (pageToken) url.searchParams.set("pageToken", pageToken);
+
+      const playlistRes = await fetch(url.toString());
+      const playlistData = await playlistRes.json();
+      const pageItems: PlaylistItem[] = playlistData?.items ?? [];
+      items.push(...pageItems);
+      pageToken = playlistData?.nextPageToken;
+    } while (pageToken);
 
     if (items.length === 0) {
       return json({ inserted: 0, message: "No videos found." });
     }
 
-    // 3. Hydrate stats + duration in a single videos.list call
-    const ids = items.map((i) => i.snippet.resourceId.videoId).join(",");
-    const statsRes = await fetch(
-      `https://www.googleapis.com/youtube/v3/videos?part=statistics,contentDetails&id=${ids}&key=${apiKey}`
-    );
-    const statsData = await statsRes.json();
-    const statsMap = new Map<string, VideoStat>(
-      (statsData?.items ?? []).map((v: VideoStat) => [v.id, v])
-    );
+    // 3. Hydrate stats + duration (videos.list accepts max 50 IDs per call)
+    const statsMap = new Map<string, VideoStat>();
+    for (let i = 0; i < items.length; i += 50) {
+      const batch = items.slice(i, i + 50);
+      const ids = batch.map((it) => it.snippet.resourceId.videoId).join(",");
+      const statsRes = await fetch(
+        `https://www.googleapis.com/youtube/v3/videos?part=statistics,contentDetails&id=${ids}&key=${apiKey}`
+      );
+      const statsData = await statsRes.json();
+      for (const v of (statsData?.items ?? []) as VideoStat[]) {
+        statsMap.set(v.id, v);
+      }
+    }
 
     // 4. Build rows
     const rows = items.map((item) => {
