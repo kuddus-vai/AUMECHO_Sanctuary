@@ -24,8 +24,8 @@ export function useVideos() {
 
     load();
 
-    const channel = supabase
-      .channel("videos-realtime")
+    const channel = supabase.channel(`videos-realtime-${Math.random().toString(36).slice(2)}`);
+    channel
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "videos" },
