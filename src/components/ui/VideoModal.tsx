@@ -150,6 +150,16 @@ export function VideoModal() {
                         {activeVideo.description}
                       </p>
                     )}
+                    <a
+                      href={SUBSCRIBE_URL}
+                      target="_blank"
+                      rel="noreferrer"
+                      data-cursor="pointer"
+                      className="group mt-4 inline-flex items-center gap-2 rounded-full border border-[rgba(255,0,0,0.5)] bg-[rgba(255,0,0,0.14)] px-4 py-2 text-[12px] font-semibold tracking-tight text-pure transition-[background-color,border-color,box-shadow] duration-300 hover:bg-[rgba(255,0,0,0.24)] hover:border-[rgba(255,0,0,0.75)] hover:shadow-[0_0_28px_rgba(255,0,0,0.4)]"
+                    >
+                      <Bell size={13} className="transition-transform duration-300 group-hover:rotate-[-12deg]" />
+                      <span>Subscribe to AUMECHO</span>
+                    </a>
                   </div>
                   <div className="flex flex-col items-start gap-3 sm:items-end">
                     <div className="font-mono text-[10px] tracking-hud text-slate">
