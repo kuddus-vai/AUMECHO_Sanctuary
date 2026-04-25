@@ -1,0 +1,1 @@
+ALTER TABLE public.videos DROP CONSTRAINT IF EXISTS videos_category_check;
