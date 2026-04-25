@@ -89,10 +89,7 @@ export function VideoArchive() {
               return (
                 <button
                   key={f.key}
-                  onClick={() => {
-                    setFilter(f.key);
-                    setVisible(PAGE_SIZE);
-                  }}
+                  onClick={() => setFilter(f.key)}
                   className={cn(
                     "rounded-full border px-3 py-1.5 font-mono text-[10px] tracking-hud transition-[background-color,border-color,color,box-shadow] duration-300",
                     active
