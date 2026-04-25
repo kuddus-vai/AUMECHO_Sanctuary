@@ -1,0 +1,1 @@
+DELETE FROM public.videos WHERE youtube_id LIKE 'seed-%' OR thumbnail_url LIKE '%placeholder%' OR title ILIKE 'transmission #%';
