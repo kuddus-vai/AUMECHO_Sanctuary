@@ -1,6 +1,7 @@
 import { motion, useInView, useReducedMotion } from "framer-motion";
 import { useRef } from "react";
-import { ListMusic, ExternalLink, Play } from "lucide-react";
+import { Link } from "react-router-dom";
+import { ListMusic, ArrowUpRight, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { HudLabel } from "@/components/ui/HudLabel";
 import { usePlaylists } from "@/hooks/usePlaylists";
