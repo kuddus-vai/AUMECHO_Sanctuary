@@ -15,7 +15,7 @@ interface VideoCardProps {
 }
 
 export function VideoCard({ video, index, className, layout = "default" }: VideoCardProps) {
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLButtonElement>(null);
   const inView = useInView(ref, { once: true, margin: "-50px" });
   const reduced = useReducedMotion();
   const { openModal } = useModal();
