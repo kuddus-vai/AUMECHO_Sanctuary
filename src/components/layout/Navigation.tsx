@@ -42,10 +42,23 @@ export function Navigation() {
             className="flex items-center gap-2.5"
             aria-label="AUMECHO home"
           >
-            <span className="relative flex h-1.5 w-1.5">
-              <span className="absolute inset-0 animate-ping rounded-full bg-cyan opacity-60" />
-              <span className="relative h-1.5 w-1.5 rounded-full bg-cyan shadow-glow-sm" />
-            </span>
+            {logoUrl ? (
+              <span className="relative flex h-8 w-8 items-center justify-center">
+                <span aria-hidden className="absolute inset-0 rounded-full bg-cyan/20 blur-md" />
+                <img
+                  src={logoUrl}
+                  alt="AUMECHO"
+                  className="relative h-8 w-8 rounded-full border border-[rgba(0,242,255,0.4)] object-cover shadow-glow-sm"
+                  loading="eager"
+                  decoding="async"
+                />
+              </span>
+            ) : (
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="absolute inset-0 animate-ping rounded-full bg-cyan opacity-60" />
+                <span className="relative h-1.5 w-1.5 rounded-full bg-cyan shadow-glow-sm" />
+              </span>
+            )}
             <span className="text-[18px] font-semibold tracking-tightest text-pure">
               AUMECHO
             </span>
