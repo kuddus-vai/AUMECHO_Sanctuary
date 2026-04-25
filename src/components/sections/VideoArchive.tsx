@@ -38,24 +38,19 @@ const PAGE_SIZE = 24;
 export function VideoArchive() {
   const { videos, loading } = useVideos();
   const [filter, setFilter] = useState<FilterKey>("all");
-  const [visible, setVisible] = useState(PAGE_SIZE);
   const reduced = useReducedMotion();
   const headerRef = useRef<HTMLDivElement>(null);
   const inView = useInView(headerRef, { once: true, margin: "-80px" });
 
-  // Long-form only — Shorts have their own shelf below
+  // Long-form only — Shorts have their own shelf
   const longForm = useMemo(
     () => videos.filter((v) => !v.is_short && v.category !== "shorts"),
     [videos]
   );
 
   const filtered = useMemo(() => {
-    const base = filter === "all" ? longForm : longForm.filter((v) => v.category === filter);
-    return base;
+    return filter === "all" ? longForm : longForm.filter((v) => v.category === filter);
   }, [longForm, filter]);
-
-  const slice = filtered.slice(0, visible);
-  const canLoadMore = filtered.length > visible;
 
   return (
     <section
@@ -136,7 +131,7 @@ export function VideoArchive() {
             transition={{ duration: 0.3 }}
             className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-12"
           >
-            {slice.map((v, i) => {
+            {filtered.map((v, i) => {
               const p = PATTERN[i % PATTERN.length];
               return (
                 <VideoCard
@@ -155,17 +150,6 @@ export function VideoArchive() {
             )}
           </motion.div>
         </AnimatePresence>
-      )}
-
-      {canLoadMore && !loading && (
-        <div className="mt-10 flex justify-center">
-          <button
-            onClick={() => setVisible((v) => v + PAGE_SIZE)}
-            className="rounded-full border border-[rgba(0,242,255,0.3)] bg-[rgba(0,242,255,0.05)] px-6 py-2.5 font-mono text-[10px] tracking-hud text-cyan transition-all duration-300 hover:bg-[rgba(0,242,255,0.12)] hover:shadow-glow-sm"
-          >
-            LOAD MORE — {filtered.length - visible} REMAINING
-          </button>
-        </div>
       )}
     </section>
   );
