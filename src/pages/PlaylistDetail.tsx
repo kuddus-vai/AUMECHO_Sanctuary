@@ -119,19 +119,41 @@ const PlaylistDetail = () => {
               transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
               className="grid gap-6 lg:grid-cols-[1.1fr_1fr]"
             >
-              <div className="relative aspect-[16/9] overflow-hidden rounded-2xl border border-[rgba(255,255,255,0.08)]">
-                <img
-                  src={playlist.thumbnail_url}
-                  alt={playlist.title}
-                  className="absolute inset-0 h-full w-full object-cover"
-                />
+              <div className="relative aspect-[16/9] overflow-hidden rounded-2xl border border-[rgba(0,242,255,0.18)] bg-gradient-to-br from-[rgba(0,242,255,0.08)] via-surface to-[rgba(5,5,7,0.95)]">
+                {/* Soft halo */}
                 <div
+                  aria-hidden
                   className="absolute inset-0"
                   style={{
                     background:
-                      "linear-gradient(to top, rgba(5,5,7,0.85) 0%, rgba(5,5,7,0.2) 50%, rgba(5,5,7,0.05) 100%)",
+                      "radial-gradient(circle at 50% 45%, rgba(0,242,255,0.18) 0%, rgba(0,242,255,0.05) 35%, transparent 70%)",
                   }}
                 />
+                {/* HUD corners */}
+                <span aria-hidden className="pointer-events-none absolute left-3 top-3 h-3 w-3 border-l border-t border-cyan/60" />
+                <span aria-hidden className="pointer-events-none absolute right-3 top-3 h-3 w-3 rotate-90 border-l border-t border-cyan/60" />
+                <span aria-hidden className="pointer-events-none absolute right-3 bottom-3 h-3 w-3 rotate-180 border-l border-t border-cyan/60" />
+                <span aria-hidden className="pointer-events-none absolute left-3 bottom-3 h-3 w-3 -rotate-90 border-l border-t border-cyan/60" />
+
+                {/* Official channel logo */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  {channelStats?.thumbnail ? (
+                    <img
+                      src={channelStats.thumbnail}
+                      alt={`${channelStats.title || "AUMECHO"} channel logo`}
+                      className="h-[58%] w-auto rounded-full border border-[rgba(0,242,255,0.35)] shadow-[0_0_60px_rgba(0,242,255,0.35)]"
+                    />
+                  ) : (
+                    <div className="h-[58%] aspect-square animate-pulse rounded-full border border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.03)]" />
+                  )}
+                </div>
+
+                <div className="absolute bottom-3 left-1/2 -translate-x-1/2">
+                  <span className="font-mono text-[9px] uppercase tracking-hud text-slate">
+                    AUMECHO · OFFICIAL CHANNEL
+                  </span>
+                </div>
+
                 {isGita && (
                   <div className="absolute left-5 top-5">
                     <span className="rounded-full border border-[rgba(0,242,255,0.5)] bg-[rgba(0,242,255,0.15)] px-3 py-1 font-mono text-[9px] uppercase tracking-hud text-cyan">
@@ -140,6 +162,7 @@ const PlaylistDetail = () => {
                   </div>
                 )}
               </div>
+
 
               <div className="flex flex-col justify-center gap-5">
                 <HudLabel className="text-[10px] text-cyan">
