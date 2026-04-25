@@ -1,6 +1,7 @@
 import { motion, useInView, useReducedMotion } from "framer-motion";
 import { useRef } from "react";
-import { ListMusic, ExternalLink, Play } from "lucide-react";
+import { Link } from "react-router-dom";
+import { ListMusic, ArrowUpRight, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { HudLabel } from "@/components/ui/HudLabel";
 import { usePlaylists } from "@/hooks/usePlaylists";
@@ -45,17 +46,11 @@ export function PlaylistsShelf() {
       {/* All playlists — every one rendered as a featured wide card */}
       <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
         {playlists.map((p, i) => {
-          // Gita series → open at the FIRST (oldest) episode in player view
-          const isGita = /gita|गीता|geeta/i.test(p.title);
-          const href = isGita
-            ? `https://www.youtube.com/watch?list=${p.youtube_playlist_id}&index=1`
-            : `https://www.youtube.com/playlist?list=${p.youtube_playlist_id}`;
+          const MotionLink = motion(Link);
           return (
-          <motion.a
+          <MotionLink
             key={p.id}
-            href={href}
-            target="_blank"
-            rel="noopener noreferrer"
+            to={`/playlists/${p.youtube_playlist_id}`}
             data-cursor="link"
             initial={reduced ? { opacity: 0 } : { opacity: 0, y: 24 }}
             animate={inView ? { opacity: 1, y: 0 } : undefined}
@@ -119,11 +114,11 @@ export function PlaylistsShelf() {
                 <p className="line-clamp-2 text-sm text-ghost">{p.description}</p>
               )}
               <div className="mt-1 flex items-center gap-2 font-mono text-[10px] tracking-hud text-cyan transition-transform duration-300 group-hover:translate-x-1">
-                <span>OPEN ON YOUTUBE</span>
-                <ExternalLink size={11} />
+                <span>VIEW ALL EPISODES</span>
+                <ArrowUpRight size={12} />
               </div>
             </div>
-          </motion.a>
+          </MotionLink>
           );
         })}
       </div>
