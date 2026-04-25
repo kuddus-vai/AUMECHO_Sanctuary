@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useChannelInfo } from "@/hooks/useChannelInfo";
 
 const NAV_LINKS = [
   { label: "Series", href: "#playlists" },
