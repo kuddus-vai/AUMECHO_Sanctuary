@@ -241,12 +241,26 @@ function CommunityFeed({
 }) {
   const PAGE = 5;
   const [visible, setVisible] = useState(PAGE);
+  const [canScrollUp, setCanScrollUp] = useState(false);
+  const [canScrollDown, setCanScrollDown] = useState(false);
+  const scrollerRef = useRef<HTMLUListElement | null>(null);
   const sentinelRef = useRef<HTMLLIElement | null>(null);
+
+  const updateScrollState = () => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    setCanScrollUp(el.scrollTop > 2);
+    setCanScrollDown(el.scrollTop + el.clientHeight < el.scrollHeight - 2);
+  };
 
   // Reset paging when the underlying list changes (e.g. new fetch).
   useEffect(() => {
     setVisible(PAGE);
   }, [posts.length]);
+
+  useEffect(() => {
+    updateScrollState();
+  }, [loading, posts.length, visible]);
 
   // Infinite scroll via IntersectionObserver on a sentinel inside the scroll container.
   useEffect(() => {
@@ -280,7 +294,13 @@ function CommunityFeed({
           OPEN ↗
         </a>
       </div>
-      <ul className="flex-1 space-y-1.5 overflow-y-auto scrollbar-thin pr-1">
+      <div className="relative min-h-0 flex-1">
+        <ScrollCue direction="up" show={canScrollUp} />
+        <ul
+          ref={scrollerRef}
+          onScroll={updateScrollState}
+          className="h-full space-y-1.5 overflow-y-auto overscroll-contain pr-2 scrollbar-visible"
+        >
         {loading && posts.length === 0 ? (
           Array.from({ length: 5 }).map((_, i) => (
             <li key={i} className="h-[60px] rounded-md text-shimmer" />
@@ -308,7 +328,21 @@ function CommunityFeed({
             )}
           </>
         )}
-      </ul>
+        </ul>
+        <ScrollCue direction="down" show={canScrollDown} />
+      </div>
+    </div>
+  );
+}
+
+function ScrollCue({ direction, show }: { direction: "up" | "down"; show: boolean }) {
+  const Icon = direction === "up" ? ChevronUp : ChevronDown;
+  return (
+    <div
+      aria-hidden
+      className={`pointer-events-none absolute inset-x-0 ${direction === "up" ? "top-0 bg-gradient-to-b" : "bottom-0 bg-gradient-to-t"} z-10 flex h-9 items-center justify-center from-void/95 via-void/55 to-transparent transition-opacity duration-200 ${show ? "opacity-100" : "opacity-0"}`}
+    >
+      <Icon size={14} className="text-cyan/80" />
     </div>
   );
 }
