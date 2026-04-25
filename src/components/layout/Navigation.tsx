@@ -93,7 +93,15 @@ export function Navigation() {
           >
             <div className="flex h-16 items-center justify-between border-b border-[rgba(255,255,255,0.06)] px-5">
               <span className="flex items-center gap-2.5">
-                <span className="h-1.5 w-1.5 rounded-full bg-cyan shadow-glow-sm" />
+                {logoUrl ? (
+                  <img
+                    src={logoUrl}
+                    alt="AUMECHO"
+                    className="h-8 w-8 rounded-full border border-[rgba(0,242,255,0.4)] object-cover shadow-glow-sm"
+                  />
+                ) : (
+                  <span className="h-1.5 w-1.5 rounded-full bg-cyan shadow-glow-sm" />
+                )}
                 <span className="text-[18px] font-semibold tracking-tightest text-pure">
                   AUMECHO
                 </span>
