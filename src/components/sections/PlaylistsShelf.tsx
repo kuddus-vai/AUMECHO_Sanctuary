@@ -1,5 +1,4 @@
-import { motion, useInView, useReducedMotion } from "framer-motion";
-import { useRef } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ListMusic, ArrowUpRight, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -8,8 +7,6 @@ import { usePlaylists } from "@/hooks/usePlaylists";
 
 export function PlaylistsShelf() {
   const { playlists, loading } = usePlaylists();
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-80px" });
   const reduced = useReducedMotion();
 
   if (loading || playlists.length === 0) return null;
@@ -20,9 +17,9 @@ export function PlaylistsShelf() {
       className="relative z-10 mx-auto max-w-[1400px] px-4 py-20 sm:px-6 sm:py-24 lg:px-8"
     >
       <motion.div
-        ref={ref}
         initial={reduced ? { opacity: 0 } : { opacity: 0, y: 16 }}
-        animate={inView ? { opacity: 1, y: 0 } : undefined}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-80px" }}
         transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
         className="mb-10 space-y-4"
       >
@@ -53,7 +50,8 @@ export function PlaylistsShelf() {
             to={`/playlists/${p.youtube_playlist_id}`}
             data-cursor="link"
             initial={reduced ? { opacity: 0 } : { opacity: 0, y: 24 }}
-            animate={inView ? { opacity: 1, y: 0 } : undefined}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-40px" }}
             transition={{
               duration: 0.6,
               ease: [0.16, 1, 0.3, 1],

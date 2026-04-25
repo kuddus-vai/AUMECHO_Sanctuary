@@ -38,21 +38,28 @@ export function AboutSection() {
           <h2 className="text-3xl font-light tracking-tightest text-pure sm:text-4xl lg:text-5xl">
             AUMECHO is a digital sanctuary
             <span className="block text-pure/55">
-              for atmospheric music — slow,
+              for devotional sound — bhajans,
             </span>
-            <span className="block text-pure/55">deliberate, made for the quiet hours.</span>
+            <span className="block text-pure/55">mantras &amp; sacred verses for the soul.</span>
           </h2>
 
           <p className="mt-8 max-w-xl text-base leading-relaxed text-ghost">
-            We publish lofi, ambient, and long-form mixes. Every transmission is
-            mastered to be lived inside of — for working, drifting, or sleeping.
-            No interruptions. No noise. Only signal.
+            We publish daily bhajans, mantras, aartis, kirtans, kathas and the
+            full Bhagavad Gita series. Every transmission is mastered for
+            stillness — for puja, meditation, or quiet reflection. No noise.
+            Only bhakti.
           </p>
 
           <div className="mt-10">
             <MagneticButton
               data-cursor="pointer"
-              onClick={() => window.open("https://youtube.com/", "_blank", "noreferrer")}
+              onClick={() =>
+                window.open(
+                  "https://www.youtube.com/@AUMECHO?sub_confirmation=1",
+                  "_blank",
+                  "noreferrer"
+                )
+              }
             >
               <span>SUBSCRIBE ON YOUTUBE</span>
               <ArrowUpRight

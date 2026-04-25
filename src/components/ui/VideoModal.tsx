@@ -1,9 +1,12 @@
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useEffect } from "react";
 import { createPortal } from "react-dom";
-import { ExternalLink, Maximize2, Minimize2, X } from "lucide-react";
+import { Bell, ExternalLink, Maximize2, Minimize2, X } from "lucide-react";
 import { useModal } from "@/store/modalStore";
 import { formatDateLong, formatViewCount } from "@/lib/format";
+
+const SUBSCRIBE_URL =
+  "https://www.youtube.com/@AUMECHO?sub_confirmation=1";
 
 export function VideoModal() {
   const { activeVideo, closeModal, focusMode, toggleFocusMode } = useModal();
@@ -85,6 +88,17 @@ export function VideoModal() {
                     </h2>
                   </div>
                   <div className="flex shrink-0 items-center gap-2">
+                    <a
+                      href={SUBSCRIBE_URL}
+                      target="_blank"
+                      rel="noreferrer"
+                      data-cursor="pointer"
+                      aria-label="Subscribe to AUMECHO on YouTube"
+                      className="group hidden h-9 items-center gap-2 rounded-full border border-[rgba(255,0,0,0.45)] bg-[rgba(255,0,0,0.12)] px-3.5 font-mono text-[10px] uppercase tracking-hud text-pure transition-[background-color,border-color,box-shadow] duration-300 hover:bg-[rgba(255,0,0,0.22)] hover:border-[rgba(255,0,0,0.7)] hover:shadow-[0_0_24px_rgba(255,0,0,0.35)] sm:inline-flex"
+                    >
+                      <Bell size={12} className="transition-transform duration-300 group-hover:rotate-[-12deg]" />
+                      <span>Subscribe</span>
+                    </a>
                     <ModalIconBtn onClick={toggleFocusMode} label="Focus mode">
                       {focusMode ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
                     </ModalIconBtn>
@@ -136,6 +150,16 @@ export function VideoModal() {
                         {activeVideo.description}
                       </p>
                     )}
+                    <a
+                      href={SUBSCRIBE_URL}
+                      target="_blank"
+                      rel="noreferrer"
+                      data-cursor="pointer"
+                      className="group mt-4 inline-flex items-center gap-2 rounded-full border border-[rgba(255,0,0,0.5)] bg-[rgba(255,0,0,0.14)] px-4 py-2 text-[12px] font-semibold tracking-tight text-pure transition-[background-color,border-color,box-shadow] duration-300 hover:bg-[rgba(255,0,0,0.24)] hover:border-[rgba(255,0,0,0.75)] hover:shadow-[0_0_28px_rgba(255,0,0,0.4)]"
+                    >
+                      <Bell size={13} className="transition-transform duration-300 group-hover:rotate-[-12deg]" />
+                      <span>Subscribe to AUMECHO</span>
+                    </a>
                   </div>
                   <div className="flex flex-col items-start gap-3 sm:items-end">
                     <div className="font-mono text-[10px] tracking-hud text-slate">

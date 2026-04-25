@@ -1,4 +1,4 @@
-import { motion, useInView, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -8,9 +8,7 @@ import { useModal } from "@/store/modalStore";
 
 export function ShortsShelf() {
   const { videos } = useVideos();
-  const ref = useRef<HTMLDivElement>(null);
   const railRef = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-80px" });
   const reduced = useReducedMotion();
   const { openModal } = useModal();
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -53,9 +51,9 @@ export function ShortsShelf() {
       className="relative z-10 mx-auto max-w-[1400px] px-4 py-16 sm:px-6 sm:py-20 lg:px-8"
     >
       <motion.div
-        ref={ref}
         initial={reduced ? { opacity: 0 } : { opacity: 0, y: 16 }}
-        animate={inView ? { opacity: 1, y: 0 } : undefined}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-80px" }}
         transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
         className="mb-8 space-y-4"
       >
@@ -118,7 +116,8 @@ export function ShortsShelf() {
               data-cursor="video"
               onClick={() => openModal(v)}
               initial={reduced ? { opacity: 0 } : { opacity: 0, y: 24 }}
-              animate={inView ? { opacity: 1, y: 0 } : undefined}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-40px" }}
               transition={{
                 duration: 0.5,
                 ease: [0.16, 1, 0.3, 1],
