@@ -14,7 +14,8 @@ export function useVideos() {
       const { data, error } = await supabase
         .from("videos")
         .select("*")
-        .order("published_at", { ascending: false });
+        .order("published_at", { ascending: false })
+        .limit(2000);
 
       if (cancelled) return;
       if (error) setError(error.message);
