@@ -9,6 +9,7 @@ import { PageTransition } from "@/components/ui/PageTransition";
 import { ModalProvider } from "@/store/modalStore";
 import Index from "./pages/Index.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import PlaylistDetail from "./pages/PlaylistDetail.tsx";
 
 const queryClient = new QueryClient();
 
@@ -23,6 +24,7 @@ const App = () => (
           <PageTransition>
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route path="/playlists/:id" element={<PlaylistDetail />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
