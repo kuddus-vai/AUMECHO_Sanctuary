@@ -1,5 +1,4 @@
-import { motion, useInView, useReducedMotion } from "framer-motion";
-import { useRef } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ListMusic, ArrowUpRight, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -8,8 +7,6 @@ import { usePlaylists } from "@/hooks/usePlaylists";
 
 export function PlaylistsShelf() {
   const { playlists, loading } = usePlaylists();
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-80px" });
   const reduced = useReducedMotion();
 
   if (loading || playlists.length === 0) return null;
