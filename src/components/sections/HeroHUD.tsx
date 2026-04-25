@@ -1,9 +1,10 @@
 import { motion, useReducedMotion, type Variants } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
-import { Play, Radio } from "lucide-react";
+import { Bell, MessageCircle, Play, ThumbsUp } from "lucide-react";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { HudLabel } from "@/components/ui/HudLabel";
 import { useVideos } from "@/hooks/useVideos";
+import { useChannelInfo, type ChannelStats, type CommunityPost } from "@/hooks/useChannelInfo";
 import { useModal } from "@/store/modalStore";
 import { formatDateDDMMYYYY, timeAgo } from "@/lib/format";
 import type { Video } from "@/lib/types";
@@ -27,8 +28,8 @@ export function HeroHUD() {
     [videos]
   );
   const recent = useMemo(() => {
-    if (!featured) return videos.slice(0, 4);
-    return videos.filter((v) => v.id !== featured.id).slice(0, 4);
+    if (!featured) return videos.slice(0, 12);
+    return videos.filter((v) => v.id !== featured.id).slice(0, 12);
   }, [videos, featured]);
 
   return (
@@ -65,7 +66,7 @@ export function HeroHUD() {
 
         <div className="grid flex-1 grid-cols-1 gap-3 lg:grid-cols-12">
           <motion.div variants={fadeUp} className="lg:col-span-3">
-            <SystemPanel />
+            <ChannelPanel />
           </motion.div>
 
           <motion.div variants={fadeUp} className="lg:col-span-6">
@@ -118,94 +119,171 @@ function StatusBar() {
   );
 }
 
-/* ---------------- Left: SYS.STATUS ---------------- */
-function SystemPanel() {
+/* ---------------- Left: CHANNEL.LIVE (stats + community + subscribe) ---------------- */
+function ChannelPanel() {
+  const { stats, posts, loading, subscribeUrl, handle } = useChannelInfo();
+
   return (
     <GlassCard className="h-full p-4">
-      <div className="flex h-full flex-col gap-5">
+      <div className="flex h-full flex-col gap-4">
         <div className="flex items-center justify-between">
-          <HudLabel className="text-[9px]">SYS.STATUS</HudLabel>
-          <Radio size={10} className="text-cyan/70" />
+          <HudLabel className="text-[9px]">CHANNEL.LIVE</HudLabel>
+          <span className="flex items-center gap-1.5 font-mono text-[9px] tracking-hud text-cyan/70">
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="absolute inset-0 animate-ping rounded-full bg-cyan opacity-70" />
+              <span className="relative h-1.5 w-1.5 rounded-full bg-cyan" />
+            </span>
+            SYNCED
+          </span>
         </div>
 
-        <FrequencyBars />
+        {/* Stats */}
+        <ChannelStatsBlock stats={stats} loading={loading} />
 
-        <div className="space-y-2">
-          <ReadoutRow label="SIGNAL" pct={87} />
-          <ReadoutRow label="CLARITY" pct={62} />
-          <ReadoutRow label="RESONANCE" pct={100} />
-        </div>
+        {/* Subscribe CTA */}
+        <a
+          href={subscribeUrl}
+          target="_blank"
+          rel="noreferrer"
+          data-cursor="pointer"
+          className="group flex h-10 items-center justify-center gap-2 rounded-md border border-[rgba(255,0,0,0.45)] bg-[rgba(255,0,0,0.12)] px-3 font-mono text-[10px] uppercase tracking-hud text-pure transition-[background-color,border-color,box-shadow] duration-300 hover:bg-[rgba(255,0,0,0.22)] hover:border-[rgba(255,0,0,0.7)] hover:shadow-[0_0_24px_rgba(255,0,0,0.35)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(255,0,0,0.5)]"
+          aria-label={`Subscribe to ${handle} on YouTube`}
+        >
+          <Bell size={12} className="transition-transform duration-300 group-hover:rotate-[-12deg]" />
+          <span>Subscribe</span>
+        </a>
 
-        <div className="mt-auto space-y-1 border-t border-[rgba(255,255,255,0.06)] pt-3 font-mono text-[9px] tracking-hud text-slate">
-          <Coordinates />
-          <div className="flex items-center justify-between">
-            <span>UPLINK</span>
-            <span className="text-cyan/70">STABLE</span>
-          </div>
-        </div>
+        {/* Community posts */}
+        <CommunityFeed posts={posts} loading={loading} handle={handle} />
       </div>
     </GlassCard>
   );
 }
 
-function FrequencyBars() {
-  const [heights, setHeights] = useState<number[]>(() => Array.from({ length: 8 }, () => 30));
-  useEffect(() => {
-    const id = setInterval(() => {
-      setHeights(Array.from({ length: 8 }, () => 18 + Math.random() * 82));
-    }, 220);
-    return () => clearInterval(id);
-  }, []);
+function ChannelStatsBlock({ stats, loading }: { stats: ChannelStats | null; loading: boolean }) {
   return (
-    <div className="flex h-12 items-end gap-[3px]">
-      {heights.map((h, i) => (
-        <div
-          key={i}
-          className="flex-1 rounded-sm bg-cyan/60 transition-[height] duration-200 ease-out"
-          style={{ height: `${h}%`, boxShadow: "0 0 8px rgba(0,242,255,0.35)" }}
-        />
-      ))}
+    <div className="grid grid-cols-3 gap-2">
+      <StatCell
+        label="SUBS"
+        value={stats ? compactNumber(stats.subscriberCount) : loading ? "…" : "—"}
+        accent
+      />
+      <StatCell
+        label="VIDEOS"
+        value={stats ? compactNumber(stats.videoCount) : loading ? "…" : "—"}
+      />
+      <StatCell
+        label="VIEWS"
+        value={stats ? compactNumber(stats.viewCount) : loading ? "…" : "—"}
+      />
     </div>
   );
 }
 
-function ReadoutRow({ label, pct }: { label: string; pct: number }) {
+function StatCell({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
   return (
-    <div className="space-y-[6px]">
-      <div className="flex items-center justify-between font-mono text-[9px] tracking-hud">
-        <span className="text-slate">› {label}</span>
-        <span className="text-pure">{pct}%</span>
-      </div>
-      <div className="h-[3px] w-full overflow-hidden rounded-full bg-[rgba(255,255,255,0.06)]">
-        <motion.div
-          initial={{ width: 0 }}
-          animate={{ width: `${pct}%` }}
-          transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
-          className="h-full rounded-full bg-cyan"
-          style={{ boxShadow: "0 0 8px rgba(0,242,255,0.6)" }}
-        />
+    <div className="rounded-md border border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.02)] p-2">
+      <div className="font-mono text-[8px] tracking-hud text-slate">{label}</div>
+      <div
+        className={
+          "mt-1 text-[15px] font-semibold tabular-nums tracking-tight " +
+          (accent ? "text-cyan" : "text-pure")
+        }
+      >
+        {value}
       </div>
     </div>
   );
 }
 
-function Coordinates() {
-  const [lat, setLat] = useState(48.8566);
-  const [lon, setLon] = useState(2.3522);
-  useEffect(() => {
-    const id = setInterval(() => {
-      setLat((l) => +(l + (Math.random() - 0.5) * 0.0008).toFixed(4));
-      setLon((l) => +(l + (Math.random() - 0.5) * 0.0008).toFixed(4));
-    }, 1500);
-    return () => clearInterval(id);
-  }, []);
+function compactNumber(n: number): string {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(n >= 10_000_000 ? 0 : 1)}M`;
+  if (n >= 1_000) return `${(n / 1_000).toFixed(n >= 10_000 ? 0 : 1)}K`;
+  return String(n);
+}
+
+function CommunityFeed({
+  posts,
+  loading,
+  handle,
+}: {
+  posts: CommunityPost[];
+  loading: boolean;
+  handle: string;
+}) {
   return (
-    <div className="flex items-center justify-between tabular-nums">
-      <span>COORD</span>
-      <span className="text-ghost">
-        {lat.toFixed(4)}° N {lon.toFixed(4)}° E
-      </span>
+    <div className="flex min-h-0 flex-1 flex-col gap-2">
+      <div className="flex items-center justify-between">
+        <HudLabel className="text-[9px]">COMMUNITY.FEED</HudLabel>
+        <a
+          href={`https://www.youtube.com/${handle}/community`}
+          target="_blank"
+          rel="noreferrer"
+          className="font-mono text-[9px] tracking-hud text-slate transition-colors hover:text-cyan"
+        >
+          OPEN ↗
+        </a>
+      </div>
+      <ul className="flex-1 space-y-1.5 overflow-y-auto scrollbar-thin pr-1">
+        {loading && posts.length === 0
+          ? Array.from({ length: 5 }).map((_, i) => (
+              <li key={i} className="h-[60px] rounded-md text-shimmer" />
+            ))
+          : posts.length === 0
+          ? (
+            <li className="rounded-md border border-dashed border-[rgba(255,255,255,0.08)] p-3 text-center font-mono text-[9px] tracking-hud text-slate">
+              NO RECENT POSTS
+            </li>
+          )
+          : posts.map((p) => <CommunityPostRow key={p.id} post={p} handle={handle} />)}
+      </ul>
     </div>
+  );
+}
+
+function CommunityPostRow({ post, handle }: { post: CommunityPost; handle: string }) {
+  return (
+    <li>
+      <a
+        href={`https://www.youtube.com/${handle}/community?lb=${post.id}`}
+        target="_blank"
+        rel="noreferrer"
+        data-cursor="link"
+        className="group flex gap-2 rounded-md border border-transparent px-2 py-2 transition-[background-color,border-color] duration-300 hover:bg-[rgba(255,255,255,0.04)] hover:border-l-cyan focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(0,242,255,0.5)]"
+        style={{ borderLeftWidth: 1 }}
+      >
+        {post.imageUrl && (
+          <div className="h-[42px] w-[42px] shrink-0 overflow-hidden rounded-[3px] bg-surface">
+            <img
+              src={post.imageUrl}
+              alt=""
+              loading="lazy"
+              className="h-full w-full object-cover"
+            />
+          </div>
+        )}
+        <div className="min-w-0 flex-1">
+          <div className="line-clamp-2 text-[11px] leading-snug text-pure">
+            {post.text || "(image post)"}
+          </div>
+          <div className="mt-1 flex items-center gap-3 font-mono text-[9px] tracking-hud text-slate">
+            <span>{post.publishedTimeText || "—"}</span>
+            {post.likeCount && (
+              <span className="flex items-center gap-1">
+                <ThumbsUp size={9} />
+                {post.likeCount}
+              </span>
+            )}
+            {post.commentCount && (
+              <span className="flex items-center gap-1">
+                <MessageCircle size={9} />
+                {post.commentCount}
+              </span>
+            )}
+          </div>
+        </div>
+      </a>
+    </li>
   );
 }
 
