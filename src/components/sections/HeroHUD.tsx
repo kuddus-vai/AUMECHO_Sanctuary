@@ -66,7 +66,7 @@ export function HeroHUD() {
 
         <div className="grid flex-1 grid-cols-1 gap-3 lg:grid-cols-12">
           <motion.div variants={fadeUp} className="lg:col-span-3">
-            <SystemPanel />
+            <ChannelPanel />
           </motion.div>
 
           <motion.div variants={fadeUp} className="lg:col-span-6">
