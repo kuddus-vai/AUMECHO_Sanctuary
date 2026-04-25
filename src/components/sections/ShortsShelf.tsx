@@ -116,7 +116,8 @@ export function ShortsShelf() {
               data-cursor="video"
               onClick={() => openModal(v)}
               initial={reduced ? { opacity: 0 } : { opacity: 0, y: 24 }}
-              animate={inView ? { opacity: 1, y: 0 } : undefined}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-40px" }}
               transition={{
                 duration: 0.5,
                 ease: [0.16, 1, 0.3, 1],
