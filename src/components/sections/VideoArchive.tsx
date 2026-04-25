@@ -33,7 +33,7 @@ const PATTERN = [
   { col: "lg:col-span-12", height: "lg:h-[220px]", layout: "panoramic" as const },
 ];
 
-const PAGE_SIZE = 24;
+
 
 export function VideoArchive() {
   const { videos, loading } = useVideos();
