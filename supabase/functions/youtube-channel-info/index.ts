@@ -59,7 +59,7 @@ async function fetchChannelStats(apiKey: string, channelId: string): Promise<Cha
  * Scrape the YouTube community page for recent posts.
  * Parses the `ytInitialData` JSON embedded in the HTML.
  */
-async function fetchCommunityPosts(handle: string, limit = 5): Promise<CommunityPost[]> {
+async function fetchCommunityPosts(handle: string, limit = 50): Promise<CommunityPost[]> {
   const url = `https://www.youtube.com/${handle}/community`;
   const res = await fetch(url, {
     headers: {
@@ -154,7 +154,7 @@ Deno.serve(async (req: Request) => {
 
     const [stats, posts] = await Promise.all([
       fetchChannelStats(apiKey, channelId),
-      fetchCommunityPosts(CHANNEL_HANDLE, 5).catch((e) => {
+      fetchCommunityPosts(CHANNEL_HANDLE, 50).catch((e) => {
         console.warn("Community posts failed:", e);
         return [] as CommunityPost[];
       }),
