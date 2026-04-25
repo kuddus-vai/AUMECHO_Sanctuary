@@ -1,11 +1,25 @@
 import { Facebook, Youtube } from "lucide-react";
+import { useChannelInfo } from "@/hooks/useChannelInfo";
 
 export function Footer() {
+  const { stats } = useChannelInfo();
+  const logoUrl = stats?.thumbnail;
+
   return (
     <footer className="relative z-10 border-t border-[rgba(255,255,255,0.06)]">
       <div className="mx-auto flex h-[72px] max-w-[1400px] items-center justify-between gap-4 px-5 sm:px-8">
         <div className="flex items-center gap-3">
-          <span className="h-1.5 w-1.5 rounded-full bg-cyan shadow-glow-sm" />
+          {logoUrl ? (
+            <img
+              src={logoUrl}
+              alt="AUMECHO"
+              className="h-7 w-7 rounded-full border border-[rgba(0,242,255,0.3)] object-cover shadow-glow-sm"
+              loading="lazy"
+              decoding="async"
+            />
+          ) : (
+            <span className="h-1.5 w-1.5 rounded-full bg-cyan shadow-glow-sm" />
+          )}
           <span className="text-sm font-semibold tracking-tightest text-pure">AUMECHO</span>
           <span className="font-mono text-[10px] tracking-hud text-slate">© {new Date().getFullYear()}</span>
         </div>
