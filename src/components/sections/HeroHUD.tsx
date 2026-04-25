@@ -230,6 +230,54 @@ function compactNumber(n: number): string {
   return String(n);
 }
 
+// Tracks how close the scroller is to its top/bottom edges as 0→1 opacities,
+// updating on every frame the user interacts (wheel, drag, touch, keyboard).
+function useScrollEdges<T extends HTMLElement>(deps: unknown[] = []) {
+  const ref = useRef<T | null>(null);
+  const [upOpacity, setUpOpacity] = useState(0);
+  const [downOpacity, setDownOpacity] = useState(0);
+  const rafRef = useRef<number | null>(null);
+
+  const measure = () => {
+    rafRef.current = null;
+    const el = ref.current;
+    if (!el) return;
+    const FADE = 48; // px window over which the cue fully fades
+    const top = el.scrollTop;
+    const maxScroll = el.scrollHeight - el.clientHeight;
+    const bottomDist = Math.max(0, maxScroll - top);
+    const scrollable = maxScroll > 1;
+    setUpOpacity(scrollable ? Math.min(1, top / FADE) : 0);
+    setDownOpacity(scrollable ? Math.min(1, bottomDist / FADE) : 0);
+  };
+
+  const schedule = () => {
+    if (rafRef.current != null) return;
+    rafRef.current = requestAnimationFrame(measure);
+  };
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    schedule();
+    const ro = new ResizeObserver(schedule);
+    ro.observe(el);
+    el.addEventListener("scroll", schedule, { passive: true });
+    el.addEventListener("wheel", schedule, { passive: true });
+    el.addEventListener("touchmove", schedule, { passive: true });
+    return () => {
+      ro.disconnect();
+      el.removeEventListener("scroll", schedule);
+      el.removeEventListener("wheel", schedule);
+      el.removeEventListener("touchmove", schedule);
+      if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, deps);
+
+  return { ref, upOpacity, downOpacity, refresh: schedule };
+}
+
 function CommunityFeed({
   posts,
   loading,
@@ -241,17 +289,9 @@ function CommunityFeed({
 }) {
   const PAGE = 5;
   const [visible, setVisible] = useState(PAGE);
-  const [canScrollUp, setCanScrollUp] = useState(false);
-  const [canScrollDown, setCanScrollDown] = useState(false);
-  const scrollerRef = useRef<HTMLUListElement | null>(null);
   const sentinelRef = useRef<HTMLLIElement | null>(null);
-
-  const updateScrollState = () => {
-    const el = scrollerRef.current;
-    if (!el) return;
-    setCanScrollUp(el.scrollTop > 2);
-    setCanScrollDown(el.scrollTop + el.clientHeight < el.scrollHeight - 2);
-  };
+  const { ref: scrollerRef, upOpacity, downOpacity, refresh } =
+    useScrollEdges<HTMLUListElement>([loading, posts.length, visible]);
 
   // Reset paging when the underlying list changes (e.g. new fetch).
   useEffect(() => {
@@ -259,8 +299,8 @@ function CommunityFeed({
   }, [posts.length]);
 
   useEffect(() => {
-    updateScrollState();
-  }, [loading, posts.length, visible]);
+    refresh();
+  }, [loading, posts.length, visible, refresh]);
 
   // Infinite scroll via IntersectionObserver on a sentinel inside the scroll container.
   useEffect(() => {
