@@ -27,6 +27,7 @@ type ItemRow = {
 const PlaylistDetail = () => {
   const { id } = useParams<{ id: string }>();
   const { playlists } = usePlaylists();
+  const { stats: channelStats } = useChannelInfo();
   const { openModal } = useModal();
   const [items, setItems] = useState<ItemRow[]>([]);
   const [loading, setLoading] = useState(true);
