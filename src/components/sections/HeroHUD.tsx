@@ -427,7 +427,7 @@ function RecentPanel({ videos, loading }: { videos: Video[]; loading: boolean })
             {loading ? "…" : `${videos.length}`}
           </span>
         </div>
-        <ul className="flex-1 space-y-1.5 overflow-hidden">
+        <ul className="flex-1 space-y-1.5 overflow-y-auto scrollbar-thin pr-1">
           {(loading ? Array.from({ length: 4 }) : videos).map((v, i) => {
             const video = v as Video | undefined;
             return (
