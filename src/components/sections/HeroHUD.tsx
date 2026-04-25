@@ -1,6 +1,6 @@
 import { motion, useReducedMotion, type Variants } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
-import { Bell, MessageCircle, Play, ThumbsUp, Users } from "lucide-react";
+import { Bell, MessageCircle, Play, ThumbsUp } from "lucide-react";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { HudLabel } from "@/components/ui/HudLabel";
 import { useVideos } from "@/hooks/useVideos";
