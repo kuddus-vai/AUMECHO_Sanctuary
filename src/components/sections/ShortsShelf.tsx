@@ -1,4 +1,4 @@
-import { motion, useInView, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -8,9 +8,7 @@ import { useModal } from "@/store/modalStore";
 
 export function ShortsShelf() {
   const { videos } = useVideos();
-  const ref = useRef<HTMLDivElement>(null);
   const railRef = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-80px" });
   const reduced = useReducedMotion();
   const { openModal } = useModal();
   const [canScrollLeft, setCanScrollLeft] = useState(false);
