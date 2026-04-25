@@ -30,7 +30,7 @@ const PlaylistDetail = () => {
   const [items, setItems] = useState<ItemRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const featuredRef = useRef<HTMLDivElement>(null);
+  
 
   const playlist = useMemo(
     () => playlists.find((p) => p.youtube_playlist_id === id),
@@ -91,12 +91,8 @@ const PlaylistDetail = () => {
   };
 
   return (
-    <div className="relative min-h-screen bg-void text-pure">
-      <CustomCursor />
-      <Navigation />
-      <VideoModal />
-
-      <main className="pt-24">
+    <RootLayout>
+      <div className="pt-8">
         {/* Header / hero */}
         <section className="relative mx-auto max-w-[1400px] px-4 pb-10 pt-6 sm:px-6 lg:px-8">
           <Link
