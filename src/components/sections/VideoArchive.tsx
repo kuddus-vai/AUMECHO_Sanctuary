@@ -1,5 +1,5 @@
-import { AnimatePresence, motion, useInView, useReducedMotion } from "framer-motion";
-import { useMemo, useRef, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import { HudLabel } from "@/components/ui/HudLabel";
 import { SkeletonCard } from "@/components/ui/SkeletonCard";
