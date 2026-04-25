@@ -44,10 +44,16 @@ export function PlaylistsShelf() {
 
       {/* All playlists — every one rendered as a featured wide card */}
       <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-        {playlists.map((p, i) => (
+        {playlists.map((p, i) => {
+          // Gita series → open at the FIRST (oldest) episode in player view
+          const isGita = /gita|गीता|geeta/i.test(p.title);
+          const href = isGita
+            ? `https://www.youtube.com/watch?list=${p.youtube_playlist_id}&index=1`
+            : `https://www.youtube.com/playlist?list=${p.youtube_playlist_id}`;
+          return (
           <motion.a
             key={p.id}
-            href={`https://www.youtube.com/playlist?list=${p.youtube_playlist_id}`}
+            href={href}
             target="_blank"
             rel="noopener noreferrer"
             data-cursor="link"
