@@ -14,14 +14,52 @@ export type Database = {
   }
   public: {
     Tables: {
+      playlists: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_featured: boolean
+          item_count: number
+          published_at: string
+          thumbnail_url: string
+          title: string
+          youtube_playlist_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_featured?: boolean
+          item_count?: number
+          published_at: string
+          thumbnail_url: string
+          title: string
+          youtube_playlist_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_featured?: boolean
+          item_count?: number
+          published_at?: string
+          thumbnail_url?: string
+          title?: string
+          youtube_playlist_id?: string
+        }
+        Relationships: []
+      }
       videos: {
         Row: {
           category: string
           created_at: string
           description: string | null
           duration: string | null
+          duration_seconds: number | null
           id: string
           is_featured: boolean
+          is_short: boolean
           published_at: string
           thumbnail_url: string
           title: string
@@ -33,8 +71,10 @@ export type Database = {
           created_at?: string
           description?: string | null
           duration?: string | null
+          duration_seconds?: number | null
           id?: string
           is_featured?: boolean
+          is_short?: boolean
           published_at: string
           thumbnail_url: string
           title: string
@@ -46,8 +86,10 @@ export type Database = {
           created_at?: string
           description?: string | null
           duration?: string | null
+          duration_seconds?: number | null
           id?: string
           is_featured?: boolean
+          is_short?: boolean
           published_at?: string
           thumbnail_url?: string
           title?: string
