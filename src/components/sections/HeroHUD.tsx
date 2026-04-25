@@ -525,20 +525,12 @@ function Corner({ className }: { className?: string }) {
 /* ---------------- Right: RECENT.LOG ---------------- */
 function RecentPanel({ videos, loading }: { videos: Video[]; loading: boolean }) {
   const { openModal } = useModal();
-  const [canScrollUp, setCanScrollUp] = useState(false);
-  const [canScrollDown, setCanScrollDown] = useState(false);
-  const scrollerRef = useRef<HTMLUListElement | null>(null);
-
-  const updateScrollState = () => {
-    const el = scrollerRef.current;
-    if (!el) return;
-    setCanScrollUp(el.scrollTop > 2);
-    setCanScrollDown(el.scrollTop + el.clientHeight < el.scrollHeight - 2);
-  };
+  const { ref: scrollerRef, upOpacity, downOpacity, refresh } =
+    useScrollEdges<HTMLUListElement>([loading, videos.length]);
 
   useEffect(() => {
-    updateScrollState();
-  }, [loading, videos.length]);
+    refresh();
+  }, [loading, videos.length, refresh]);
 
   return (
     <GlassCard className="h-full p-4">
@@ -549,11 +541,9 @@ function RecentPanel({ videos, loading }: { videos: Video[]; loading: boolean })
             {loading ? "…" : `${videos.length}`}
           </span>
         </div>
-        <div className="relative min-h-0 flex-1">
-          <ScrollCue direction="up" show={canScrollUp} />
+        <div className="relative min-h-0 flex-1 overflow-hidden">
           <ul
             ref={scrollerRef}
-            onScroll={updateScrollState}
             className="h-full space-y-1.5 overflow-y-auto overscroll-contain pr-2 scrollbar-visible"
           >
           {(loading ? Array.from({ length: 4 }) : videos).map((v, i) => {
@@ -591,12 +581,14 @@ function RecentPanel({ videos, loading }: { videos: Video[]; loading: boolean })
             );
           })}
           </ul>
-          <ScrollCue direction="down" show={canScrollDown} />
+          <ScrollCue direction="up" opacity={upOpacity} />
+          <ScrollCue direction="down" opacity={downOpacity} />
         </div>
       </div>
     </GlassCard>
   );
 }
+
 
 /* ---------------- Ticker ---------------- */
 function TickerBar() {
