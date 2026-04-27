@@ -21,7 +21,7 @@ export function AboutSection() {
     <section
       id="about"
       ref={ref}
-      className="relative z-10 mx-auto max-w-[1400px] px-4 py-24 sm:px-6 sm:py-32 lg:px-8"
+      className="relative z-10 mx-auto max-w-[1400px] px-4 py-12 sm:px-6 sm:py-16 lg:px-8"
     >
       <div className="mb-12 flex items-center gap-3">
         <HudLabel>OPERATOR.NOTES</HudLabel>
