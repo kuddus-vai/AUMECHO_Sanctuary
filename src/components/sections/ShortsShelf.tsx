@@ -48,7 +48,7 @@ export function ShortsShelf() {
   return (
     <section
       id="shorts"
-      className="relative z-10 mx-auto max-w-[1400px] px-4 py-16 sm:px-6 sm:py-20 lg:px-8"
+      className="relative z-10 mx-auto max-w-[1400px] px-4 py-8 sm:px-6 sm:py-12 lg:px-8"
     >
       <motion.div
         initial={reduced ? { opacity: 0 } : { opacity: 0, y: 16 }}
