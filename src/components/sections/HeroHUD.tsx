@@ -54,7 +54,7 @@ export function HeroHUD() {
 
   return (
     <section
-      className="relative isolate min-h-[calc(100svh-4rem)] w-full overflow-hidden"
+      className="relative isolate w-full overflow-hidden"
       aria-label="AUMECHO Sanctuary control deck"
     >
       {/* Backdrop: featured thumbnail desaturated + blurred */}
