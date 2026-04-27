@@ -53,7 +53,7 @@ export function VideoArchive() {
   return (
     <section
       id="archive"
-      className="relative z-10 mx-auto max-w-[1400px] px-4 py-20 sm:px-6 sm:py-28 lg:px-8"
+      className="relative z-10 mx-auto max-w-[1400px] px-4 py-10 sm:px-6 sm:py-14 lg:px-8"
     >
       <motion.div
         initial={reduced ? { opacity: 0 } : { opacity: 0, y: 16 }}
