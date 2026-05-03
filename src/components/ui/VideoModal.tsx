@@ -61,7 +61,7 @@ export function VideoModal() {
             }
             exit={reduced ? { opacity: 0 } : { opacity: 0, scale: 0.96, y: 20 }}
             transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            className="relative w-full max-w-[1100px] overflow-hidden rounded-[20px] border border-[rgba(255,255,255,0.1)]"
+            className="relative flex max-h-[calc(100dvh-2rem)] w-full max-w-[1100px] flex-col overflow-y-auto rounded-[20px] border border-[rgba(255,255,255,0.1)] sm:max-h-[calc(100dvh-4rem)]"
             style={{
               background: "rgba(10,10,15,0.9)",
               boxShadow:
@@ -120,13 +120,14 @@ export function VideoModal() {
             </AnimatePresence>
 
             {/* Iframe */}
-            <div className="relative w-full" style={{ aspectRatio: "16 / 9" }}>
+            <div className="relative w-full shrink-0 bg-black" style={{ aspectRatio: "16 / 9", maxHeight: focusMode ? "100dvh" : "calc(100dvh - 2rem - 52px - 200px)" }}>
               <iframe
                 title={activeVideo.title}
                 src={`https://www.youtube.com/embed/${activeVideo.youtube_id}?autoplay=1&rel=0&modestbranding=1&color=white`}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
-                className="absolute inset-0 h-full w-full"
+                className="absolute inset-0 mx-auto h-full"
+                style={{ aspectRatio: "16 / 9", maxWidth: "100%" }}
               />
             </div>
 
