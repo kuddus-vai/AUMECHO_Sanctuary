@@ -61,7 +61,7 @@ export function VideoModal() {
             }
             exit={reduced ? { opacity: 0 } : { opacity: 0, scale: 0.96, y: 20 }}
             transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            className="relative flex max-h-[calc(100dvh-2rem)] w-full max-w-[1100px] flex-col overflow-hidden rounded-[20px] border border-[rgba(255,255,255,0.1)] sm:max-h-[calc(100dvh-4rem)]"
+            className="relative flex max-h-[calc(100dvh-2rem)] w-full max-w-[1100px] flex-col overflow-y-auto rounded-[20px] border border-[rgba(255,255,255,0.1)] sm:max-h-[calc(100dvh-4rem)]"
             style={{
               background: "rgba(10,10,15,0.9)",
               boxShadow:
