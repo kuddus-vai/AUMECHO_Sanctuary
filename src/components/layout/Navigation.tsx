@@ -1,14 +1,18 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { useChannelInfo } from "@/hooks/useChannelInfo";
 
-const NAV_LINKS = [
-  { label: "Series", href: "#playlists" },
-  { label: "Shorts", href: "#shorts" },
-  { label: "Archive", href: "#archive" },
-  { label: "About", href: "#about" },
-  { label: "Facebook", href: "https://www.facebook.com/aumecho.official", external: true },
+type NavItem = { label: string; href: string; external?: boolean; route?: boolean };
+
+const NAV_LINKS: NavItem[] = [
+  { label: "Series", href: "/#playlists" },
+  { label: "Shorts", href: "/#shorts" },
+  { label: "Archive", href: "/#archive" },
+  { label: "Blog", href: "/blog", route: true },
+  { label: "Community", href: "/community", route: true },
+  { label: "FAQ", href: "/faq", route: true },
 ];
 
 export function Navigation() {
