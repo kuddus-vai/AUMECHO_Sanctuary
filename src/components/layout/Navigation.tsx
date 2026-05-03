@@ -142,27 +142,32 @@ export function Navigation() {
   );
 }
 
-function NavLink({
-  label,
-  href,
-  external,
-}: {
-  label: string;
-  href: string;
-  external?: boolean;
-}) {
+function NavLink({ label, href, external, route }: NavItem) {
+  const cls =
+    "group relative font-mono text-[11px] uppercase tracking-hud text-ghost transition-colors duration-300 hover:text-pure";
+  const underline = (
+    <span
+      aria-hidden
+      className="absolute -bottom-1 left-0 right-0 h-px origin-left scale-x-0 bg-cyan transition-transform duration-300 ease-out group-hover:scale-x-100"
+    />
+  );
+  if (route) {
+    return (
+      <Link to={href} className={cls}>
+        {label}
+        {underline}
+      </Link>
+    );
+  }
   return (
     <a
       href={href}
       target={external ? "_blank" : undefined}
       rel={external ? "noreferrer" : undefined}
-      className="group relative font-mono text-[11px] uppercase tracking-hud text-ghost transition-colors duration-300 hover:text-pure"
+      className={cls}
     >
       {label}
-      <span
-        aria-hidden
-        className="absolute -bottom-1 left-0 right-0 h-px origin-left scale-x-0 bg-cyan transition-transform duration-300 ease-out group-hover:scale-x-100"
-      />
+      {underline}
     </a>
   );
 }
