@@ -77,7 +77,7 @@ export function VideoModal() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -12 }}
                   transition={{ duration: 0.3, ease: "easeOut" }}
-                  className="flex h-[52px] items-center justify-between gap-4 border-b border-[rgba(255,255,255,0.06)] px-4 sm:px-6"
+                  className="sticky top-0 z-10 flex h-[52px] shrink-0 items-center justify-between gap-4 border-b border-[rgba(255,255,255,0.06)] bg-[rgba(10,10,15,0.95)] px-4 backdrop-blur-md sm:px-6"
                 >
                   <div className="flex min-w-0 items-center gap-3">
                     <span className="rounded-full border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.04)] px-2 py-[3px] font-mono text-[9px] uppercase tracking-hud text-ghost">
@@ -120,7 +120,7 @@ export function VideoModal() {
             </AnimatePresence>
 
             {/* Iframe */}
-            <div className="relative w-full shrink-0 bg-black" style={{ aspectRatio: "16 / 9", maxHeight: focusMode ? "100dvh" : "calc(100dvh - 2rem - 52px - 200px)" }}>
+            <div className="relative w-full shrink-0 bg-black" style={{ aspectRatio: "16 / 9", maxHeight: focusMode ? "100dvh" : "calc(100dvh - 4rem - 52px - 80px)" }}>
               <iframe
                 title={activeVideo.title}
                 src={`https://www.youtube.com/embed/${activeVideo.youtube_id}?autoplay=1&rel=0&modestbranding=1&color=white`}
