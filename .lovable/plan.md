@@ -1,90 +1,96 @@
-# AUMECHO — Digital Sanctuary
+## Goal
 
-A full-bleed, "Living HUD" experience for a YouTube-centric lofi/atmospheric music label. Built as one cohesive pass across all 10 phases of the spec.
+Add three SEO/growth-focused pages — **Blog**, **Community**, **FAQ** — fully linked from the main navigation, with proper meta tags, semantic HTML, and structured data for search visibility.
 
-## What the user will experience
+## Pages
 
-**A single immersive landing experience** with these zones, scrolled top-to-bottom:
+### 1. Blog (`/blog` and `/blog/:slug`)
+- **Index page** — grid of post cards (cover, title, excerpt, date, tag), latest first
+- **Post detail** — long-form article with cover, title, author, date, rendered markdown body, tags, share buttons, "back to blog" link
+- **Admin editor** (`/admin/blog`) — protected route to create/edit/delete posts (markdown body, cover image URL, tags, publish toggle)
 
-1. **Custom cursor** — desktop only. Two layers: a zero-lag white dot, and a trailing cyan ring (spring-eased) that morphs to a "PLAY" label over video tiles, expands over buttons/links, and falls back to the native cursor on touch devices and for users with `prefers-reduced-motion`.
+### 2. Community (`/community`)
+Static-content page promoting where to engage:
+- Hero with "Join the AUMECHO community" CTA
+- Tiles for YouTube subscribe, Discord (placeholder link), Instagram, Twitter/X, Spotify, Apple Music
+- "Submit your lofi" / collab CTA section
+- Newsletter signup (stored in DB — `subscribers` table)
 
-2. **Top navigation** — fixed, glassmorphic, 64px. Pulsing cyan status dot + "AUMECHO" wordmark. Right-side mono nav links (Archive · About · YouTube). Mobile: full-screen staggered overlay menu.
+### 3. FAQ (`/faq`)
+Accordion of common questions (what is AUMECHO, music licensing/usage, how to submit, where to listen, collab requests, copyright). Includes **FAQPage JSON-LD** for rich Google snippets.
 
-3. **Hero "Living HUD"** — the design centerpiece. Full-viewport, divided into:
-   - Top status bar (LIVE indicator · "AUMECHO SANCTUARY // ATMOSPHERIC SIGNAL ACTIVE" · live HH:MM:SS clock)
-   - Left panel: animated 8-bar frequency visualizer + terminal-style readouts (SIGNAL/CLARITY/RESONANCE) + drifting coordinates
-   - Center: glassmorphic "Now Playing / Featured" card with the featured video thumbnail, play overlay, category pill, title, date — opens the video modal
-   - Right panel: 4 most recent transmissions with hover slide + cyan border accent
-   - Bottom marquee ticker
-   - Backdrop: the featured thumbnail desaturated/blurred, plus the nebula radial gradient and noise overlay
-   - Entrance: staggered blur+rise reveal across panels
+## Database (Lovable Cloud)
 
-4. **Bento Video Archive** — labeled "SIGNAL.ARCHIVE / All Transmissions". Category filter pills (ALL · LOFI · AMBIENT · MIX · PLAYLIST) with animated filtering via AnimatePresence. 12-column bento grid with a repeating size pattern (large/medium/wide/panoramic) so the grid feels editorial, not uniform. Cards: scale-on-hover thumbnail, breathing cyan border, fade-in PLAY overlay, gradient-mask title block. Skeleton shimmer while loading.
+New tables via migration:
 
-5. **Aether Video Modal** — opens via React Portal. Full-screen blurred backdrop, glassmorphic player container, top bar (category + title + Focus / Open-on-YouTube / Close icons), 16:9 YouTube embed with autoplay, bottom info bar (description with read-more, formatted date, view count, YouTube/Spotify/Apple Music pill links with branded hover tints). **Focus Mode** hides the chrome and darkens the backdrop for pure-video viewing. ESC closes; click-outside closes.
+```text
+blog_posts
+  id uuid pk, slug text unique, title text, excerpt text,
+  cover_url text, body_md text, tags text[],
+  published boolean default false, published_at timestamptz,
+  created_at, updated_at
 
-6. **About section** — split layout: large low-weight statement on the left, glassmorphic stat panel on the right with counters that animate from 0 to value when scrolled into view. CTA: "SUBSCRIBE ON YOUTUBE" with magnetic hover and arrow.
+subscribers
+  id uuid pk, email text unique, created_at
 
-7. **Footer** — minimal, mono, three social glyphs with cyan glow on hover, "Built with intention." tag.
-
-8. **Page transitions** — even though this is a single primary page, the route shell uses the "Liquid Wash" transition (frosted-glass curtain sweeping L→R then off R→∞) so future routes inherit it, plus per-section in-view reveals throughout.
-
-## Data + backend
-
-- **Lovable Cloud** (built-in Supabase) — no external account.
-- A `videos` table with the exact schema from the spec (youtube_id, title, description, thumbnail_url, published_at, category enum, view_count, duration, is_featured), public-read RLS, indexes on `published_at` and `is_featured`.
-- A `useVideos` hook that fetches all videos and subscribes to realtime changes so new uploads appear without refresh.
-- A **YouTube sync edge function** (`sync-youtube-videos`) that uses the YouTube Data API v3 to fetch the channel's uploads playlist, upserts rows into `videos`. It reads `YOUTUBE_API_KEY` and `YOUTUBE_CHANNEL_ID` from edge-function secrets. After deploy I'll prompt you for both values.
-- A small admin trigger button (hidden, dev-only) to invoke the sync on demand. The site loads instantly from the DB regardless.
-
-## Visual system
-
-- Tailwind extended with the full token set from the spec: `void`, `surface`, `glass`, `border-glow`, `cyan` family, `ghost`, `pure`; mono + sans families; `tracking-hud`; nebula and glow gradients; `glow-sm/md/lg` shadows; float/scan/noise-shift keyframes.
-- Inter + JetBrains Mono via Google Fonts.
-- A noise overlay pinned at `#root::before` (z-9999, pointer-events-none) using a generated SVG-filter texture so we don't depend on a binary asset.
-- Global cursor hidden on desktop pointer devices only.
-- Custom scrollbar, cyan text-selection, smooth scroll.
-
-## Micro-interaction standards (applied universally)
-
-- 1px borders everywhere; cubic-bezier eases (no linear); `whileTap` scale 0.97 on all interactive surfaces.
-- Magnetic hover on primary CTAs.
-- Border "breathing" on glass cards (white/7 → cyan/25, 400ms).
-- Image load: blur+scale → sharp on `onLoad`.
-- Reserved aspect ratios on every thumbnail to eliminate layout shift.
-- Visible cyan focus rings on all focusable elements.
-- `useReducedMotion` short-circuits non-essential animation.
-
-## Technical notes (for reference)
-
-```
-src/
-├── lib/                 supabase client, youtube helper, cn()
-├── hooks/               useVideos, useCursor, useReducedMotion wrapper
-├── store/               modalStore (Context: activeVideo, focusMode)
-├── components/
-│   ├── ui/              CustomCursor, GlassCard, HudLabel, VideoCard,
-│   │                    SkeletonCard, VideoModal, PageTransition,
-│   │                    MagneticButton
-│   ├── layout/          RootLayout, Navigation, Footer
-│   └── sections/        HeroHUD, VideoArchive, AboutSection
-├── pages/Index.tsx      Composes the sections
-└── index.css            Tokens, fonts, noise overlay, cursor reset
-
-supabase/
-├── migrations/…         videos table + RLS + indexes
-└── functions/sync-youtube-videos/index.ts
+user_roles  (standard pattern)
+  id, user_id (auth.users), role app_role enum('admin','user')
+  + has_role(uuid, app_role) security-definer function
 ```
 
-- Framer Motion is the sole animation engine; no GSAP.
-- All thumbnails use fixed aspect-ratio wrappers.
-- The custom cursor mounts above all routes, but is gated by a pointer-fine media query so it disappears on touch and respects reduced motion.
-- The video modal is portaled to `document.body` so it escapes any stacking context.
+**RLS:**
+- `blog_posts`: public SELECT where `published = true`; admin-only INSERT/UPDATE/DELETE via `has_role(auth.uid(),'admin')`
+- `subscribers`: public INSERT (anyone can subscribe), admin-only SELECT
+- `user_roles`: user reads own roles, admin manages all
 
-## What I'll need from you after the build
+## Auth
+- Email/password sign-in at `/auth` (sign-up disabled UI side; admin seeded manually)
+- Auto-confirm enabled so the seeded admin can log in immediately
+- `/admin/blog` wrapped in route guard checking `has_role(uid,'admin')`
 
-After deploy I'll prompt for:
-1. **YouTube Data API v3 key** (from Google Cloud Console → APIs & Services)
-2. **AUMECHO YouTube channel ID** (the `UC…` string from the channel URL)
+## SEO
 
-Then I'll trigger the sync once and the archive will populate with real videos.
+- Add **react-helmet-async** for per-route `<title>`, meta description, OG/Twitter cards, canonical URLs
+- Article JSON-LD on blog posts; FAQPage JSON-LD on `/faq`
+- Generate `public/sitemap.xml` build-time stub + dynamic client sitemap link in footer
+- Update `public/robots.txt` to allow all and reference sitemap
+- Semantic `<article>`, `<nav>`, `<main>` landmarks; descriptive alt text
+
+## Navigation
+- Add Blog, Community, FAQ links to `Navigation.tsx` (desktop + mobile)
+- Add same links to `Footer.tsx` under a "Explore" column
+
+## Files to create
+
+```text
+src/pages/Blog.tsx
+src/pages/BlogPost.tsx
+src/pages/Community.tsx
+src/pages/FAQ.tsx
+src/pages/Auth.tsx
+src/pages/admin/BlogAdmin.tsx
+src/pages/admin/BlogEditor.tsx
+src/components/seo/SEO.tsx          (Helmet wrapper)
+src/components/blog/PostCard.tsx
+src/components/blog/MarkdownView.tsx
+src/components/auth/RequireAdmin.tsx
+src/hooks/useBlogPosts.ts
+src/hooks/useAuth.ts
+```
+
+## Files to edit
+- `src/App.tsx` — add routes + HelmetProvider
+- `src/components/layout/Navigation.tsx` — new links
+- `src/components/layout/Footer.tsx` — new links
+- `index.html` — base SEO defaults
+- `public/robots.txt` — sitemap reference
+
+## Dependencies
+- `react-helmet-async`, `react-markdown`, `remark-gfm`
+
+## Out of scope (this round)
+- Comments on blog posts
+- Image uploads (cover URLs entered as text for now; storage bucket can be added later)
+- Server-rendered SEO (Vite SPA — meta tags injected client-side; acceptable for Google but mention if pre-rendering needed later)
+
+After approval I'll run the migration, scaffold the pages, wire routes, and seed one example blog post + FAQ items so the pages aren't empty on first load.

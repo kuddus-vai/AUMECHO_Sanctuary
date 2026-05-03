@@ -1,14 +1,18 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { useChannelInfo } from "@/hooks/useChannelInfo";
 
-const NAV_LINKS = [
-  { label: "Series", href: "#playlists" },
-  { label: "Shorts", href: "#shorts" },
-  { label: "Archive", href: "#archive" },
-  { label: "About", href: "#about" },
-  { label: "Facebook", href: "https://www.facebook.com/aumecho.official", external: true },
+type NavItem = { label: string; href: string; external?: boolean; route?: boolean };
+
+const NAV_LINKS: NavItem[] = [
+  { label: "Series", href: "/#playlists" },
+  { label: "Shorts", href: "/#shorts" },
+  { label: "Archive", href: "/#archive" },
+  { label: "Blog", href: "/blog", route: true },
+  { label: "Community", href: "/community", route: true },
+  { label: "FAQ", href: "/faq", route: true },
 ];
 
 export function Navigation() {
@@ -37,8 +41,8 @@ export function Navigation() {
       >
         <div className="mx-auto flex h-full max-w-[1400px] items-center justify-between px-5 sm:px-8">
           {/* Logo */}
-          <a
-            href="#top"
+          <Link
+            to="/"
             className="flex items-center gap-2.5"
             aria-label="AUMECHO home"
           >
@@ -62,7 +66,7 @@ export function Navigation() {
             <span className="text-[18px] font-semibold tracking-tightest text-pure">
               AUMECHO
             </span>
-          </a>
+          </Link>
 
           {/* Desktop nav */}
           <nav className="hidden items-center gap-8 md:flex">
@@ -115,21 +119,35 @@ export function Navigation() {
               </button>
             </div>
             <nav className="flex flex-1 flex-col items-start justify-center gap-6 px-8">
-              {NAV_LINKS.map((l, i) => (
-                <motion.a
-                  key={l.label}
-                  href={l.href}
-                  target={l.external ? "_blank" : undefined}
-                  rel={l.external ? "noreferrer" : undefined}
-                  onClick={() => setOpen(false)}
-                  initial={{ opacity: 0, x: -16 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.1 + i * 0.08, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                  className="text-4xl font-light tracking-tightest text-pure"
-                >
-                  {l.label}
-                </motion.a>
-              ))}
+              {NAV_LINKS.map((l, i) => {
+                const common = {
+                  initial: { opacity: 0, x: -16 },
+                  animate: { opacity: 1, x: 0 },
+                  transition: { delay: 0.1 + i * 0.08, duration: 0.4, ease: [0.16, 1, 0.3, 1] as const },
+                  className: "text-4xl font-light tracking-tightest text-pure",
+                  onClick: () => setOpen(false),
+                };
+                if (l.route) {
+                  return (
+                    <motion.div key={l.label} {...common}>
+                      <Link to={l.href} onClick={() => setOpen(false)}>
+                        {l.label}
+                      </Link>
+                    </motion.div>
+                  );
+                }
+                return (
+                  <motion.a
+                    key={l.label}
+                    href={l.href}
+                    target={l.external ? "_blank" : undefined}
+                    rel={l.external ? "noreferrer" : undefined}
+                    {...common}
+                  >
+                    {l.label}
+                  </motion.a>
+                );
+              })}
             </nav>
           </motion.div>
         )}
@@ -138,27 +156,32 @@ export function Navigation() {
   );
 }
 
-function NavLink({
-  label,
-  href,
-  external,
-}: {
-  label: string;
-  href: string;
-  external?: boolean;
-}) {
+function NavLink({ label, href, external, route }: NavItem) {
+  const cls =
+    "group relative font-mono text-[11px] uppercase tracking-hud text-ghost transition-colors duration-300 hover:text-pure";
+  const underline = (
+    <span
+      aria-hidden
+      className="absolute -bottom-1 left-0 right-0 h-px origin-left scale-x-0 bg-cyan transition-transform duration-300 ease-out group-hover:scale-x-100"
+    />
+  );
+  if (route) {
+    return (
+      <Link to={href} className={cls}>
+        {label}
+        {underline}
+      </Link>
+    );
+  }
   return (
     <a
       href={href}
       target={external ? "_blank" : undefined}
       rel={external ? "noreferrer" : undefined}
-      className="group relative font-mono text-[11px] uppercase tracking-hud text-ghost transition-colors duration-300 hover:text-pure"
+      className={cls}
     >
       {label}
-      <span
-        aria-hidden
-        className="absolute -bottom-1 left-0 right-0 h-px origin-left scale-x-0 bg-cyan transition-transform duration-300 ease-out group-hover:scale-x-100"
-      />
+      {underline}
     </a>
   );
 }
