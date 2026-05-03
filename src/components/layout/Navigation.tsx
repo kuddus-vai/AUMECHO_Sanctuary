@@ -41,8 +41,8 @@ export function Navigation() {
       >
         <div className="mx-auto flex h-full max-w-[1400px] items-center justify-between px-5 sm:px-8">
           {/* Logo */}
-          <a
-            href="#top"
+          <Link
+            to="/"
             className="flex items-center gap-2.5"
             aria-label="AUMECHO home"
           >
@@ -66,7 +66,7 @@ export function Navigation() {
             <span className="text-[18px] font-semibold tracking-tightest text-pure">
               AUMECHO
             </span>
-          </a>
+          </Link>
 
           {/* Desktop nav */}
           <nav className="hidden items-center gap-8 md:flex">
