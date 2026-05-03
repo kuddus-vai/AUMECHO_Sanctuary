@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useChannelInfo } from "@/hooks/useChannelInfo";
 
 type NavItem = { label: string; href: string; external?: boolean; route?: boolean };
