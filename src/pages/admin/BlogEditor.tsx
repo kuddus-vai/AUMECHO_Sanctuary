@@ -1,10 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { RootLayout } from "@/components/layout/RootLayout";
 import { SEO } from "@/components/seo/SEO";
 import { RequireAdmin } from "@/components/auth/RequireAdmin";
+import { MarkdownView } from "@/components/blog/MarkdownView";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { X, Upload, Eye, FileText, Loader2 } from "lucide-react";
 
 function slugify(s: string) {
   return s
@@ -18,16 +20,22 @@ function EditorInner() {
   const { id } = useParams<{ id: string }>();
   const isNew = !id || id === "new";
   const navigate = useNavigate();
+  const fileRef = useRef<HTMLInputElement>(null);
 
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
+  const [slugTouched, setSlugTouched] = useState(false);
   const [excerpt, setExcerpt] = useState("");
   const [coverUrl, setCoverUrl] = useState("");
   const [body, setBody] = useState("");
-  const [tags, setTags] = useState("");
+  const [tags, setTags] = useState<string[]>([]);
+  const [tagInput, setTagInput] = useState("");
   const [published, setPublished] = useState(false);
+
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [tab, setTab] = useState<"write" | "preview">("write");
 
   useEffect(() => {
     if (isNew) return;
@@ -41,39 +49,86 @@ function EditorInner() {
         if (error || !data) return toast({ title: "Could not load post", variant: "destructive" });
         setTitle(data.title);
         setSlug(data.slug);
+        setSlugTouched(true);
         setExcerpt(data.excerpt ?? "");
         setCoverUrl(data.cover_url ?? "");
         setBody(data.body_md);
-        setTags((data.tags ?? []).join(", "));
+        setTags(data.tags ?? []);
         setPublished(data.published);
       });
   }, [id, isNew]);
 
-  const save = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // Auto-generate slug from title until user edits slug manually
+  useEffect(() => {
+    if (!slugTouched) setSlug(slugify(title));
+  }, [title, slugTouched]);
+
+  const addTag = (raw: string) => {
+    const t = raw.trim().replace(/,$/, "");
+    if (!t) return;
+    if (!tags.includes(t)) setTags([...tags, t]);
+    setTagInput("");
+  };
+
+  const handleTagKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" || e.key === "," || e.key === "Tab") {
+      if (tagInput.trim()) {
+        e.preventDefault();
+        addTag(tagInput);
+      }
+    } else if (e.key === "Backspace" && !tagInput && tags.length) {
+      setTags(tags.slice(0, -1));
+    }
+  };
+
+  const handleUpload = async (file: File) => {
+    if (!file.type.startsWith("image/")) {
+      return toast({ title: "Please select an image", variant: "destructive" });
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      return toast({ title: "Max 5MB", variant: "destructive" });
+    }
+    setUploading(true);
+    const ext = file.name.split(".").pop() || "jpg";
+    const path = `${crypto.randomUUID()}.${ext}`;
+    const { error } = await supabase.storage.from("blog-covers").upload(path, file, {
+      cacheControl: "3600",
+      upsert: false,
+    });
+    if (error) {
+      setUploading(false);
+      return toast({ title: error.message, variant: "destructive" });
+    }
+    const { data } = supabase.storage.from("blog-covers").getPublicUrl(path);
+    setCoverUrl(data.publicUrl);
+    setUploading(false);
+    toast({ title: "Cover uploaded" });
+  };
+
+  const persist = async (publishState: boolean) => {
+    if (!title.trim()) return toast({ title: "Title required", variant: "destructive" });
     setSaving(true);
+    const finalSlug = slug || slugify(title);
     const payload = {
-      title,
-      slug: slug || slugify(title),
+      title: title.trim(),
+      slug: finalSlug,
       excerpt: excerpt || null,
       cover_url: coverUrl || null,
       body_md: body,
-      tags: tags
-        .split(",")
-        .map((t) => t.trim())
-        .filter(Boolean),
-      published,
-      published_at: published ? new Date().toISOString() : null,
+      tags,
+      published: publishState,
+      published_at: publishState ? new Date().toISOString() : null,
     };
 
-    const { error } = isNew
-      ? await supabase.from("blog_posts").insert(payload)
-      : await supabase.from("blog_posts").update(payload).eq("id", id!);
+    const { data, error } = isNew
+      ? await supabase.from("blog_posts").insert(payload).select("id").maybeSingle()
+      : await supabase.from("blog_posts").update(payload).eq("id", id!).select("id").maybeSingle();
 
     setSaving(false);
     if (error) return toast({ title: error.message, variant: "destructive" });
-    toast({ title: "Saved" });
-    navigate("/admin/blog");
+    setPublished(publishState);
+    toast({ title: publishState ? "Published" : "Draft saved" });
+    if (isNew && data?.id) navigate(`/admin/blog/${data.id}`, { replace: true });
   };
 
   if (loading) {
@@ -86,104 +141,279 @@ function EditorInner() {
 
   return (
     <RootLayout>
-      <SEO title={isNew ? "New post" : "Edit post"} />
-      <form onSubmit={save} className="mx-auto max-w-3xl px-5 py-16 sm:px-8 sm:py-20">
-        <h1 className="text-3xl font-semibold tracking-tightest text-pure">
-          {isNew ? "New post" : "Edit post"}
-        </h1>
-
-        <div className="mt-8 space-y-5">
-          <Field label="Title">
-            <input
-              required
-              value={title}
-              onChange={(e) => {
-                setTitle(e.target.value);
-                if (isNew && !slug) setSlug(slugify(e.target.value));
-              }}
-              className={inputCls}
-            />
-          </Field>
-          <Field label="Slug">
-            <input
-              required
-              value={slug}
-              onChange={(e) => setSlug(slugify(e.target.value))}
-              className={inputCls}
-            />
-          </Field>
-          <Field label="Excerpt">
-            <textarea
-              value={excerpt}
-              onChange={(e) => setExcerpt(e.target.value)}
-              rows={2}
-              className={inputCls}
-            />
-          </Field>
-          <Field label="Cover image URL">
-            <input
-              type="url"
-              value={coverUrl}
-              onChange={(e) => setCoverUrl(e.target.value)}
-              className={inputCls}
-            />
-          </Field>
-          <Field label="Tags (comma separated)">
-            <input
-              value={tags}
-              onChange={(e) => setTags(e.target.value)}
-              className={inputCls}
-            />
-          </Field>
-          <Field label="Body (markdown)">
-            <textarea
-              required
-              value={body}
-              onChange={(e) => setBody(e.target.value)}
-              rows={18}
-              className={`${inputCls} font-mono text-sm`}
-            />
-          </Field>
-
-          <label className="flex items-center gap-3 text-ghost">
-            <input
-              type="checkbox"
-              checked={published}
-              onChange={(e) => setPublished(e.target.checked)}
-              className="h-4 w-4 accent-cyan"
-            />
-            Published
-          </label>
+      <SEO title={isNew ? "New post" : `Edit · ${title || "post"}`} />
+      <div className="mx-auto max-w-4xl px-5 py-16 sm:px-8 sm:py-20">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <p className="font-mono text-[10px] uppercase tracking-hud text-slate">
+              {isNew ? "New post" : "Editing"}
+            </p>
+            <h1 className="mt-1 text-3xl font-semibold tracking-tightest text-pure">
+              {title || "Untitled"}
+            </h1>
+          </div>
+          <div className="flex items-center gap-2">
+            <span
+              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-mono text-[10px] uppercase tracking-hud ${
+                published ? "bg-cyan/10 text-cyan" : "bg-white/5 text-slate"
+              }`}
+            >
+              <span className={`h-1.5 w-1.5 rounded-full ${published ? "bg-cyan" : "bg-slate"}`} />
+              {published ? "Published" : "Draft"}
+            </span>
+          </div>
         </div>
 
-        <div className="mt-8 flex gap-3">
-          <button
-            type="submit"
-            disabled={saving}
-            className="rounded-md bg-cyan px-6 py-3 font-mono text-[11px] uppercase tracking-hud text-void hover:opacity-90 disabled:opacity-50"
-          >
-            {saving ? "Saving…" : "Save"}
-          </button>
-          <button
-            type="button"
-            onClick={() => navigate("/admin/blog")}
-            className="rounded-md border border-[rgba(255,255,255,0.1)] px-6 py-3 font-mono text-[11px] uppercase tracking-hud text-ghost hover:text-pure"
-          >
-            Cancel
-          </button>
+        <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_280px]">
+          {/* Main editor */}
+          <div className="space-y-5">
+            <Field label="Title">
+              <input
+                required
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="An unforgettable headline"
+                className={inputCls}
+              />
+            </Field>
+
+            <Field label="Slug">
+              <div className="flex items-stretch overflow-hidden rounded-md border border-[rgba(255,255,255,0.1)] bg-void focus-within:border-cyan">
+                <span className="flex items-center px-3 font-mono text-[11px] text-slate">/blog/</span>
+                <input
+                  required
+                  value={slug}
+                  onChange={(e) => {
+                    setSlugTouched(true);
+                    setSlug(slugify(e.target.value));
+                  }}
+                  className="flex-1 bg-transparent px-1 py-2.5 text-pure focus:outline-none"
+                />
+                {slugTouched && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSlugTouched(false);
+                      setSlug(slugify(title));
+                    }}
+                    className="px-3 font-mono text-[10px] uppercase tracking-hud text-slate hover:text-cyan"
+                  >
+                    Auto
+                  </button>
+                )}
+              </div>
+            </Field>
+
+            <Field label="Excerpt">
+              <textarea
+                value={excerpt}
+                onChange={(e) => setExcerpt(e.target.value)}
+                rows={2}
+                placeholder="Short summary for cards & SEO"
+                className={inputCls}
+              />
+            </Field>
+
+            {/* Body with tabs */}
+            <div>
+              <div className="mb-2 flex items-center justify-between">
+                <span className="font-mono text-[10px] uppercase tracking-hud text-slate">Body</span>
+                <div className="flex rounded-md border border-[rgba(255,255,255,0.1)] p-0.5">
+                  <button
+                    type="button"
+                    onClick={() => setTab("write")}
+                    className={`flex items-center gap-1.5 rounded px-2.5 py-1 font-mono text-[10px] uppercase tracking-hud ${
+                      tab === "write" ? "bg-white/10 text-pure" : "text-slate hover:text-pure"
+                    }`}
+                  >
+                    <FileText size={11} /> Write
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setTab("preview")}
+                    className={`flex items-center gap-1.5 rounded px-2.5 py-1 font-mono text-[10px] uppercase tracking-hud ${
+                      tab === "preview" ? "bg-white/10 text-pure" : "text-slate hover:text-pure"
+                    }`}
+                  >
+                    <Eye size={11} /> Preview
+                  </button>
+                </div>
+              </div>
+              {tab === "write" ? (
+                <textarea
+                  value={body}
+                  onChange={(e) => setBody(e.target.value)}
+                  rows={20}
+                  placeholder="# Write in markdown…"
+                  className={`${inputCls} font-mono text-sm leading-relaxed`}
+                />
+              ) : (
+                <div className="min-h-[400px] rounded-md border border-[rgba(255,255,255,0.1)] bg-void p-6">
+                  {body.trim() ? (
+                    <MarkdownView content={body} />
+                  ) : (
+                    <p className="text-slate">Nothing to preview yet.</p>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Sidebar */}
+          <aside className="space-y-5">
+            {/* Cover */}
+            <div>
+              <span className="mb-2 block font-mono text-[10px] uppercase tracking-hud text-slate">
+                Cover image
+              </span>
+              {coverUrl ? (
+                <div className="group relative overflow-hidden rounded-md border border-[rgba(255,255,255,0.1)]">
+                  <img src={coverUrl} alt="Cover" className="aspect-video w-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => setCoverUrl("")}
+                    className="absolute right-2 top-2 rounded-full bg-void/80 p-1.5 text-pure opacity-0 transition group-hover:opacity-100"
+                    aria-label="Remove cover"
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => fileRef.current?.click()}
+                  disabled={uploading}
+                  className="flex aspect-video w-full flex-col items-center justify-center gap-2 rounded-md border border-dashed border-[rgba(255,255,255,0.15)] bg-void/50 text-slate transition hover:border-cyan hover:text-cyan disabled:opacity-50"
+                >
+                  {uploading ? (
+                    <Loader2 className="animate-spin" size={20} />
+                  ) : (
+                    <>
+                      <Upload size={20} />
+                      <span className="font-mono text-[10px] uppercase tracking-hud">Upload</span>
+                    </>
+                  )}
+                </button>
+              )}
+              <input
+                ref={fileRef}
+                type="file"
+                accept="image/*"
+                hidden
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) handleUpload(f);
+                  e.target.value = "";
+                }}
+              />
+              <input
+                type="url"
+                value={coverUrl}
+                onChange={(e) => setCoverUrl(e.target.value)}
+                placeholder="…or paste URL"
+                className={`${inputCls} mt-2 text-xs`}
+              />
+            </div>
+
+            {/* Tags */}
+            <div>
+              <span className="mb-2 block font-mono text-[10px] uppercase tracking-hud text-slate">
+                Tags
+              </span>
+              <div className="flex flex-wrap gap-1.5 rounded-md border border-[rgba(255,255,255,0.1)] bg-void p-2 focus-within:border-cyan">
+                {tags.map((t) => (
+                  <span
+                    key={t}
+                    className="inline-flex items-center gap-1 rounded-full bg-cyan/10 px-2.5 py-1 font-mono text-[10px] uppercase tracking-hud text-cyan"
+                  >
+                    {t}
+                    <button
+                      type="button"
+                      onClick={() => setTags(tags.filter((x) => x !== t))}
+                      className="opacity-60 hover:opacity-100"
+                      aria-label={`Remove ${t}`}
+                    >
+                      <X size={10} />
+                    </button>
+                  </span>
+                ))}
+                <input
+                  value={tagInput}
+                  onChange={(e) => setTagInput(e.target.value)}
+                  onKeyDown={handleTagKey}
+                  onBlur={() => tagInput.trim() && addTag(tagInput)}
+                  placeholder={tags.length ? "" : "Add tag…"}
+                  className="min-w-[80px] flex-1 bg-transparent px-1 text-sm text-pure placeholder:text-slate focus:outline-none"
+                />
+              </div>
+              <p className="mt-1.5 font-mono text-[10px] text-slate">Enter or comma to add</p>
+            </div>
+
+            {/* Publish toggle */}
+            <div className="rounded-md border border-[rgba(255,255,255,0.1)] bg-void p-4">
+              <label className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="font-mono text-[10px] uppercase tracking-hud text-slate">Visibility</p>
+                  <p className="text-pure">{published ? "Published" : "Draft"}</p>
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={published}
+                  onClick={() => setPublished(!published)}
+                  className={`relative h-6 w-11 rounded-full transition ${
+                    published ? "bg-cyan" : "bg-white/15"
+                  }`}
+                >
+                  <span
+                    className={`absolute top-0.5 h-5 w-5 rounded-full bg-pure transition ${
+                      published ? "left-[22px]" : "left-0.5"
+                    }`}
+                  />
+                </button>
+              </label>
+            </div>
+
+            {/* Actions */}
+            <div className="space-y-2">
+              <button
+                type="button"
+                disabled={saving}
+                onClick={() => persist(true)}
+                className="w-full rounded-md bg-cyan px-6 py-3 font-mono text-[11px] uppercase tracking-hud text-void hover:opacity-90 disabled:opacity-50"
+              >
+                {saving ? "Saving…" : published ? "Update" : "Publish"}
+              </button>
+              <button
+                type="button"
+                disabled={saving}
+                onClick={() => persist(false)}
+                className="w-full rounded-md border border-[rgba(255,255,255,0.1)] px-6 py-3 font-mono text-[11px] uppercase tracking-hud text-ghost hover:text-pure disabled:opacity-50"
+              >
+                Save draft
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate("/admin/blog")}
+                className="w-full px-6 py-2 font-mono text-[10px] uppercase tracking-hud text-slate hover:text-pure"
+              >
+                Cancel
+              </button>
+            </div>
+          </aside>
         </div>
-      </form>
+      </div>
     </RootLayout>
   );
 }
 
 const inputCls =
-  "w-full rounded-md border border-[rgba(255,255,255,0.1)] bg-void px-3 py-2.5 text-pure focus:border-cyan focus:outline-none";
+  "w-full rounded-md border border-[rgba(255,255,255,0.1)] bg-void px-3 py-2.5 text-pure placeholder:text-slate focus:border-cyan focus:outline-none";
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">
-      <span className="mb-1 block font-mono text-[10px] uppercase tracking-hud text-slate">
+      <span className="mb-1.5 block font-mono text-[10px] uppercase tracking-hud text-slate">
         {label}
       </span>
       {children}
