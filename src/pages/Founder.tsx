@@ -376,20 +376,56 @@ export default function Founder() {
                     </div>
                   </div>
 
-                  <div className="relative w-full bg-black" style={{ aspectRatio: "16 / 9" }}>
+                  <div className="relative flex w-full items-center justify-center overflow-hidden bg-gradient-to-br from-[rgba(0,242,255,0.08)] via-black to-[rgba(168,85,247,0.08)] p-10" style={{ minHeight: 280 }}>
+                    {previewing.thumbnail_url && (
+                      <div
+                        aria-hidden
+                        className="absolute inset-0 opacity-40"
+                        style={{
+                          backgroundImage: `url(${previewing.thumbnail_url})`,
+                          backgroundSize: "cover",
+                          backgroundPosition: "center",
+                          filter: "blur(40px) saturate(1.4)",
+                        }}
+                      />
+                    )}
+                    <div className="relative flex items-center gap-6">
+                      {previewing.thumbnail_url && (
+                        <div className="relative h-32 w-32 shrink-0 overflow-hidden rounded-2xl border border-[rgba(255,255,255,0.1)] shadow-2xl">
+                          <img src={previewing.thumbnail_url} alt={previewing.title} className="h-full w-full object-cover" />
+                        </div>
+                      )}
+                      <div className="flex flex-col gap-3">
+                        <span className="font-mono text-[10px] uppercase tracking-hud text-cyan">Audio preview</span>
+                        <div className="flex items-end gap-1 h-6">
+                          {[0, 1, 2, 3, 4].map((i) => (
+                            <span
+                              key={i}
+                              className="w-1 rounded-full bg-cyan"
+                              style={{
+                                animation: `eq-bounce 0.9s ease-in-out ${i * 0.12}s infinite`,
+                                height: "100%",
+                              }}
+                            />
+                          ))}
+                        </div>
+                        <p className="text-[13px] text-ghost">Now playing — sound only</p>
+                      </div>
+                    </div>
                     <iframe
                       key={previewing.id}
                       title={previewing.title}
                       src={`https://www.youtube.com/embed/videoseries?list=${previewing.youtube_playlist_id}&autoplay=1&rel=0&modestbranding=1`}
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                      className="absolute inset-0 h-full w-full"
+                      aria-hidden
+                      tabIndex={-1}
+                      className="pointer-events-none absolute -left-[9999px] top-0 h-px w-px opacity-0"
                     />
                   </div>
 
                   <div className="flex items-center justify-between gap-4 border-t border-[rgba(255,255,255,0.06)] p-5">
                     <p className="text-[13px] text-ghost">
-                      Previewing inline — open the full playlist for the complete experience.
+                      Audio-only preview — open the full playlist to watch.
                     </p>
                     <Link
                       to={`/playlists/${previewing.id}`}

@@ -141,3 +141,8 @@
     background: hsl(var(--primary) / 0.9);
   }
 }
+
+@keyframes eq-bounce {
+  0%, 100% { transform: scaleY(0.3); }
+  50% { transform: scaleY(1); }
+}
