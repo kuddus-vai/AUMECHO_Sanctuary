@@ -6,7 +6,7 @@ import { RequireAdmin } from "@/components/auth/RequireAdmin";
 import { MarkdownView } from "@/components/blog/MarkdownView";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { X, Upload, Eye, FileText, Loader2, Check, CloudOff, ChevronDown, ChevronRight, AlertCircle } from "lucide-react";
+import { X, Upload, Eye, FileText, Loader2, Check, CloudOff, ChevronDown, ChevronRight, AlertCircle, Copy } from "lucide-react";
 
 function slugify(s: string) {
   return s
