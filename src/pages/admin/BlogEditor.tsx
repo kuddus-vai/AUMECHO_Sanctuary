@@ -6,7 +6,7 @@ import { RequireAdmin } from "@/components/auth/RequireAdmin";
 import { MarkdownView } from "@/components/blog/MarkdownView";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { X, Upload, Eye, FileText, Loader2, Check, CloudOff } from "lucide-react";
+import { X, Upload, Eye, FileText, Loader2, Check, CloudOff, ChevronDown, ChevronRight, AlertCircle } from "lucide-react";
 
 function slugify(s: string) {
   return s
@@ -37,7 +37,16 @@ function EditorInner() {
   const [uploading, setUploading] = useState(false);
   const [tab, setTab] = useState<"write" | "preview">("write");
   const [publishToggling, setPublishToggling] = useState(false);
-  const [publishError, setPublishError] = useState<string | null>(null);
+  const [publishError, setPublishError] = useState<{
+    message: string;
+    code?: string;
+    details?: string;
+    hint?: string;
+    status?: number;
+    attemptedState?: boolean;
+    at?: string;
+  } | null>(null);
+  const [errorOpen, setErrorOpen] = useState(false);
 
   // Autosave state
   const [postId, setPostId] = useState<string | null>(isNew ? null : id!);
@@ -497,7 +506,17 @@ function EditorInner() {
                     if (error) {
                       // Rollback
                       setPublished(prev);
-                      setPublishError(error.message);
+                      const err = error as typeof error & { status?: number };
+                      setPublishError({
+                        message: error.message,
+                        code: error.code,
+                        details: error.details,
+                        hint: error.hint,
+                        status: err.status,
+                        attemptedState: next,
+                        at: new Date().toISOString(),
+                      });
+                      setErrorOpen(true);
                       toast({
                         title: `Couldn't ${next ? "publish" : "unpublish"}`,
                         description: error.message,
@@ -520,17 +539,60 @@ function EditorInner() {
                 </button>
               </label>
               {publishError ? (
-                <div className="mt-2 flex items-start justify-between gap-2">
-                  <p className="font-mono text-[10px] text-red-400" title={publishError}>
-                    Sync failed — change reverted.
-                  </p>
+                <div className="mt-3 rounded-sm border border-red-400/40 bg-red-400/5">
                   <button
                     type="button"
-                    onClick={() => setPublishError(null)}
-                    className="font-mono text-[10px] uppercase tracking-hud text-slate hover:text-pure"
+                    onClick={() => setErrorOpen((o) => !o)}
+                    className="flex w-full items-center justify-between gap-2 px-2.5 py-2 text-left"
+                    aria-expanded={errorOpen}
                   >
-                    Dismiss
+                    <span className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-hud text-red-400">
+                      <AlertCircle size={11} />
+                      Sync failed — reverted
+                    </span>
+                    {errorOpen ? (
+                      <ChevronDown size={12} className="text-red-400/70" />
+                    ) : (
+                      <ChevronRight size={12} className="text-red-400/70" />
+                    )}
                   </button>
+                  {errorOpen && (
+                    <div className="space-y-1.5 border-t border-red-400/20 px-2.5 py-2 font-mono text-[10px] text-ghost">
+                      <ErrorRow label="Message" value={publishError.message} />
+                      {publishError.code && <ErrorRow label="Code" value={publishError.code} />}
+                      {publishError.status !== undefined && (
+                        <ErrorRow label="Status" value={String(publishError.status)} />
+                      )}
+                      {publishError.details && (
+                        <ErrorRow label="Details" value={publishError.details} />
+                      )}
+                      {publishError.hint && <ErrorRow label="Hint" value={publishError.hint} />}
+                      {publishError.attemptedState !== undefined && (
+                        <ErrorRow
+                          label="Tried"
+                          value={publishError.attemptedState ? "publish" : "unpublish"}
+                        />
+                      )}
+                      {publishError.at && (
+                        <ErrorRow
+                          label="At"
+                          value={new Date(publishError.at).toLocaleTimeString()}
+                        />
+                      )}
+                      <div className="flex justify-end pt-1">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setPublishError(null);
+                            setErrorOpen(false);
+                          }}
+                          className="rounded-sm px-2 py-0.5 uppercase tracking-hud text-slate hover:text-pure"
+                        >
+                          Dismiss
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <p className="mt-2 font-mono text-[10px] text-slate">
@@ -583,6 +645,15 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
       </span>
       {children}
     </label>
+  );
+}
+
+function ErrorRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex gap-2">
+      <span className="w-14 shrink-0 uppercase tracking-hud text-slate">{label}</span>
+      <span className="break-all text-pure/90">{value}</span>
+    </div>
   );
 }
 
