@@ -251,6 +251,16 @@ function EditorInner() {
                 {savedLabel}
               </span>
             )}
+            {(dirty || autoSaving) && (
+              <button
+                type="button"
+                disabled={autoSaving || !title.trim()}
+                onClick={() => autoSave()}
+                className="rounded-sm px-2 py-1 font-mono text-[10px] uppercase tracking-hud text-cyan hover:bg-cyan/10 disabled:pointer-events-none disabled:opacity-40"
+              >
+                {autoSaving ? "Saving…" : "Save now"}
+              </button>
+            )}
             <span
               className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-mono text-[10px] uppercase tracking-hud ${
                 published ? "bg-cyan/10 text-cyan" : "bg-white/5 text-slate"
