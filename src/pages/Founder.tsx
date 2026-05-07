@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { ExternalLink, Music, Sparkles, ScrollText, Play, ListMusic, X } from "lucide-react";
 import { Link } from "react-router-dom";
