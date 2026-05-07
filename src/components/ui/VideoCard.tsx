@@ -4,6 +4,7 @@ import { Play } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatDateDDMMYYYY, formatViewCount } from "@/lib/format";
 import { useModal } from "@/store/modalStore";
+import { useHoverAudioHandlers } from "@/components/audio/HoverAudioProvider";
 import type { Video } from "@/lib/types";
 
 interface VideoCardProps {
@@ -18,6 +19,12 @@ export function VideoCard({ video, index, className, layout = "default" }: Video
   const reduced = useReducedMotion();
   const { openModal } = useModal();
   const [imgLoaded, setImgLoaded] = useState(false);
+  const hover = useHoverAudioHandlers({
+    id: video.youtube_id,
+    kind: "video",
+    title: video.title,
+    thumbnail: video.thumbnail_url,
+  });
 
   const stagger = Math.min(index, 8) * 0.05;
 
@@ -25,6 +32,7 @@ export function VideoCard({ video, index, className, layout = "default" }: Video
     <motion.button
       data-cursor="video"
       onClick={() => openModal(video)}
+      {...hover}
       initial={reduced ? { opacity: 0 } : { opacity: 0, y: 32, scale: 0.97 }}
       whileInView={
         reduced
