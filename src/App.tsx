@@ -8,6 +8,7 @@ import { CustomCursor } from "@/components/ui/CustomCursor";
 import { VideoModal } from "@/components/ui/VideoModal";
 import { PageTransition } from "@/components/ui/PageTransition";
 import { ModalProvider } from "@/store/modalStore";
+import { HoverAudioProvider } from "@/components/audio/HoverAudioProvider";
 import Index from "./pages/Index.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import PlaylistDetail from "./pages/PlaylistDetail.tsx";
@@ -27,28 +28,30 @@ const App = () => (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <ModalProvider>
-          <CustomCursor />
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <PageTransition>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/playlists/:id" element={<PlaylistDetail />} />
-                <Route path="/blog" element={<Blog />} />
-                <Route path="/blog/:slug" element={<BlogPost />} />
-                <Route path="/community" element={<Community />} />
-                <Route path="/faq" element={<FAQ />} />
-                <Route path="/founder" element={<Founder />} />
-                <Route path="/auth" element={<Auth />} />
-                <Route path="/admin/blog" element={<BlogAdmin />} />
-                <Route path="/admin/blog/:id" element={<BlogEditor />} />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </PageTransition>
-          </BrowserRouter>
-          <VideoModal />
+          <HoverAudioProvider>
+            <CustomCursor />
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <PageTransition>
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/playlists/:id" element={<PlaylistDetail />} />
+                  <Route path="/blog" element={<Blog />} />
+                  <Route path="/blog/:slug" element={<BlogPost />} />
+                  <Route path="/community" element={<Community />} />
+                  <Route path="/faq" element={<FAQ />} />
+                  <Route path="/founder" element={<Founder />} />
+                  <Route path="/auth" element={<Auth />} />
+                  <Route path="/admin/blog" element={<BlogAdmin />} />
+                  <Route path="/admin/blog/:id" element={<BlogEditor />} />
+                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </PageTransition>
+            </BrowserRouter>
+            <VideoModal />
+          </HoverAudioProvider>
         </ModalProvider>
       </TooltipProvider>
     </QueryClientProvider>
