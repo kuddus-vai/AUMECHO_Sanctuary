@@ -37,7 +37,16 @@ function EditorInner() {
   const [uploading, setUploading] = useState(false);
   const [tab, setTab] = useState<"write" | "preview">("write");
   const [publishToggling, setPublishToggling] = useState(false);
-  const [publishError, setPublishError] = useState<string | null>(null);
+  const [publishError, setPublishError] = useState<{
+    message: string;
+    code?: string;
+    details?: string;
+    hint?: string;
+    status?: number;
+    attemptedState?: boolean;
+    at?: string;
+  } | null>(null);
+  const [errorOpen, setErrorOpen] = useState(false);
 
   // Autosave state
   const [postId, setPostId] = useState<string | null>(isNew ? null : id!);
