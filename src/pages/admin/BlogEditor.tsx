@@ -234,6 +234,23 @@ function EditorInner() {
             </h1>
           </div>
           <div className="flex items-center gap-2">
+            {savedLabel && (
+              <span
+                className={`inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-hud ${
+                  autoError ? "text-red-400" : autoSaving || dirty ? "text-slate" : "text-cyan/80"
+                }`}
+                title={autoError ?? undefined}
+              >
+                {autoSaving ? (
+                  <Loader2 size={11} className="animate-spin" />
+                ) : autoError ? (
+                  <CloudOff size={11} />
+                ) : !dirty && lastSavedAt ? (
+                  <Check size={11} />
+                ) : null}
+                {savedLabel}
+              </span>
+            )}
             <span
               className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-mono text-[10px] uppercase tracking-hud ${
                 published ? "bg-cyan/10 text-cyan" : "bg-white/5 text-slate"
