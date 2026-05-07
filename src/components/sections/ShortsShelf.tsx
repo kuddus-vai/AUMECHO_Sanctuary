@@ -5,12 +5,14 @@ import { cn } from "@/lib/utils";
 import { HudLabel } from "@/components/ui/HudLabel";
 import { useVideos } from "@/hooks/useVideos";
 import { useModal } from "@/store/modalStore";
+import { useHoverAudio } from "@/components/audio/HoverAudioProvider";
 
 export function ShortsShelf() {
   const { videos } = useVideos();
   const railRef = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
   const { openModal } = useModal();
+  const hoverAudio = useHoverAudio();
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
 
@@ -115,6 +117,10 @@ export function ShortsShelf() {
               key={v.id}
               data-cursor="video"
               onClick={() => openModal(v)}
+              onMouseEnter={() => hoverAudio.start({ id: v.youtube_id, kind: "video", title: v.title, thumbnail: v.thumbnail_url })}
+              onMouseLeave={() => hoverAudio.stop()}
+              onFocus={() => hoverAudio.start({ id: v.youtube_id, kind: "video", title: v.title, thumbnail: v.thumbnail_url })}
+              onBlur={() => hoverAudio.stop()}
               initial={reduced ? { opacity: 0 } : { opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-40px" }}
