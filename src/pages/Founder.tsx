@@ -335,6 +335,8 @@ export default function Founder() {
                 <motion.div
                   key="founder-preview-shell"
                   onClick={(e) => e.stopPropagation()}
+                  onMouseEnter={cancelTimers}
+                  onMouseLeave={handleHoverEnd}
                   initial={{ opacity: 0, scale: 0.94, y: 30 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.96, y: 20 }}
