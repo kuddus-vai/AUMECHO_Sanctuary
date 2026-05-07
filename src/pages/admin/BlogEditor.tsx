@@ -487,46 +487,7 @@ function EditorInner() {
                   role="switch"
                   aria-checked={published}
                   disabled={saving || autoSaving || publishToggling || !postId}
-                  onClick={async () => {
-                    if (!postId) return;
-                    const prev = published;
-                    const next = !prev;
-                    // Optimistic flip
-                    setPublished(next);
-                    setPublishToggling(true);
-                    setPublishError(null);
-                    const { error } = await supabase
-                      .from("blog_posts")
-                      .update({
-                        published: next,
-                        published_at: next ? new Date().toISOString() : null,
-                      })
-                      .eq("id", postId);
-                    setPublishToggling(false);
-                    if (error) {
-                      // Rollback
-                      setPublished(prev);
-                      const err = error as typeof error & { status?: number };
-                      setPublishError({
-                        message: error.message,
-                        code: error.code,
-                        details: error.details,
-                        hint: error.hint,
-                        status: err.status,
-                        attemptedState: next,
-                        at: new Date().toISOString(),
-                      });
-                      setErrorOpen(true);
-                      toast({
-                        title: `Couldn't ${next ? "publish" : "unpublish"}`,
-                        description: error.message,
-                        variant: "destructive",
-                      });
-                      return;
-                    }
-                    setLastSavedAt(new Date());
-                    toast({ title: next ? "Published" : "Moved to draft" });
-                  }}
+                  onClick={() => void applyPublish(!published)}
                   className={`relative h-6 w-11 rounded-full transition disabled:opacity-50 ${
                     published ? "bg-cyan" : "bg-white/15"
                   }`}
