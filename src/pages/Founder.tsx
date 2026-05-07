@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { ExternalLink, Music, Sparkles, ScrollText, Play, ListMusic, X } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -15,6 +15,22 @@ export default function Founder() {
   const { playlists, loading } = usePlaylists();
   const featured = playlists.slice(0, 5);
   const [previewing, setPreviewing] = useState<Playlist | null>(null);
+  const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const leaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const cancelTimers = () => {
+    if (hoverTimer.current) { clearTimeout(hoverTimer.current); hoverTimer.current = null; }
+    if (leaveTimer.current) { clearTimeout(leaveTimer.current); leaveTimer.current = null; }
+  };
+  const handleHoverStart = (p: Playlist) => {
+    cancelTimers();
+    hoverTimer.current = setTimeout(() => setPreviewing(p), 280);
+  };
+  const handleHoverEnd = () => {
+    cancelTimers();
+    leaveTimer.current = setTimeout(() => setPreviewing(null), 180);
+  };
+  useEffect(() => () => cancelTimers(), []);
 
   useEffect(() => {
     if (!previewing) return;
@@ -200,10 +216,16 @@ export default function Founder() {
                       viewport={{ once: true, margin: "-60px" }}
                       transition={{ duration: 0.55, delay: i * 0.07 }}
                     >
-                      <div className="group relative overflow-hidden rounded-2xl border border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.02)] transition-colors hover:border-[rgba(0,242,255,0.3)]">
+                      <div
+                        className="group relative overflow-hidden rounded-2xl border border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.02)] transition-colors hover:border-[rgba(0,242,255,0.3)]"
+                        onMouseEnter={() => handleHoverStart(p)}
+                        onMouseLeave={handleHoverEnd}
+                      >
                         <button
                           type="button"
                           onClick={() => setPreviewing(p)}
+                          onFocus={() => handleHoverStart(p)}
+                          onBlur={handleHoverEnd}
                           aria-label={`Preview ${p.title}`}
                           className="block w-full text-left"
                         >
@@ -313,6 +335,8 @@ export default function Founder() {
                 <motion.div
                   key="founder-preview-shell"
                   onClick={(e) => e.stopPropagation()}
+                  onMouseEnter={cancelTimers}
+                  onMouseLeave={handleHoverEnd}
                   initial={{ opacity: 0, scale: 0.94, y: 30 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.96, y: 20 }}
