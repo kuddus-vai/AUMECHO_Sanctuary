@@ -6,7 +6,7 @@ import { RequireAdmin } from "@/components/auth/RequireAdmin";
 import { MarkdownView } from "@/components/blog/MarkdownView";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { X, Upload, Eye, FileText, Loader2 } from "lucide-react";
+import { X, Upload, Eye, FileText, Loader2, Check, CloudOff } from "lucide-react";
 
 function slugify(s: string) {
   return s
@@ -37,6 +37,15 @@ function EditorInner() {
   const [uploading, setUploading] = useState(false);
   const [tab, setTab] = useState<"write" | "preview">("write");
 
+  // Autosave state
+  const [postId, setPostId] = useState<string | null>(isNew ? null : id!);
+  const [dirty, setDirty] = useState(false);
+  const [autoSaving, setAutoSaving] = useState(false);
+  const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
+  const [autoError, setAutoError] = useState<string | null>(null);
+  const hydratedRef = useRef(isNew); // suppress dirty on initial load
+  const inFlightRef = useRef(false);
+
   useEffect(() => {
     if (isNew) return;
     supabase
@@ -55,8 +64,72 @@ function EditorInner() {
         setBody(data.body_md);
         setTags(data.tags ?? []);
         setPublished(data.published);
+        hydratedRef.current = true;
       });
   }, [id, isNew]);
+
+  // Mark dirty whenever an editable field changes (after hydration)
+  useEffect(() => {
+    if (!hydratedRef.current) return;
+    setDirty(true);
+  }, [title, slug, excerpt, coverUrl, body, tags, published]);
+
+  // Debounced autosave loop — saves 2s after last edit
+  useEffect(() => {
+    if (!dirty) return;
+    if (!title.trim()) return; // need a title to create/save
+    const t = setTimeout(() => {
+      void autoSave();
+    }, 2000);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dirty, title, slug, excerpt, coverUrl, body, tags, published]);
+
+  // Warn on unload if unsaved
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (dirty || autoSaving) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [dirty, autoSaving]);
+
+  const buildPayload = (publishState: boolean) => ({
+    title: title.trim(),
+    slug: slug || slugify(title),
+    excerpt: excerpt || null,
+    cover_url: coverUrl || null,
+    body_md: body,
+    tags,
+    published: publishState,
+    published_at: publishState ? new Date().toISOString() : null,
+  });
+
+  const autoSave = async () => {
+    if (inFlightRef.current) return;
+    inFlightRef.current = true;
+    setAutoSaving(true);
+    setAutoError(null);
+    const payload = buildPayload(published);
+    const { data, error } = postId
+      ? await supabase.from("blog_posts").update(payload).eq("id", postId).select("id").maybeSingle()
+      : await supabase.from("blog_posts").insert(payload).select("id").maybeSingle();
+    inFlightRef.current = false;
+    setAutoSaving(false);
+    if (error) {
+      setAutoError(error.message);
+      return;
+    }
+    setDirty(false);
+    setLastSavedAt(new Date());
+    if (!postId && data?.id) {
+      setPostId(data.id);
+      window.history.replaceState(null, "", `/admin/blog/${data.id}`);
+    }
+  };
 
   // Auto-generate slug from title until user edits slug manually
   useEffect(() => {
@@ -108,28 +181,36 @@ function EditorInner() {
   const persist = async (publishState: boolean) => {
     if (!title.trim()) return toast({ title: "Title required", variant: "destructive" });
     setSaving(true);
-    const finalSlug = slug || slugify(title);
-    const payload = {
-      title: title.trim(),
-      slug: finalSlug,
-      excerpt: excerpt || null,
-      cover_url: coverUrl || null,
-      body_md: body,
-      tags,
-      published: publishState,
-      published_at: publishState ? new Date().toISOString() : null,
-    };
+    const payload = buildPayload(publishState);
 
-    const { data, error } = isNew
-      ? await supabase.from("blog_posts").insert(payload).select("id").maybeSingle()
-      : await supabase.from("blog_posts").update(payload).eq("id", id!).select("id").maybeSingle();
+    const { data, error } = postId
+      ? await supabase.from("blog_posts").update(payload).eq("id", postId).select("id").maybeSingle()
+      : await supabase.from("blog_posts").insert(payload).select("id").maybeSingle();
 
     setSaving(false);
     if (error) return toast({ title: error.message, variant: "destructive" });
     setPublished(publishState);
+    setDirty(false);
+    setLastSavedAt(new Date());
     toast({ title: publishState ? "Published" : "Draft saved" });
-    if (isNew && data?.id) navigate(`/admin/blog/${data.id}`, { replace: true });
+    if (!postId && data?.id) {
+      setPostId(data.id);
+      navigate(`/admin/blog/${data.id}`, { replace: true });
+    }
   };
+
+  const savedLabel = (() => {
+    if (autoSaving) return "Saving…";
+    if (autoError) return "Save failed";
+    if (dirty) return "Unsaved changes";
+    if (lastSavedAt) {
+      const s = Math.round((Date.now() - lastSavedAt.getTime()) / 1000);
+      if (s < 5) return "Saved just now";
+      if (s < 60) return `Saved ${s}s ago`;
+      return `Saved ${Math.round(s / 60)}m ago`;
+    }
+    return "";
+  })();
 
   if (loading) {
     return (
@@ -153,6 +234,23 @@ function EditorInner() {
             </h1>
           </div>
           <div className="flex items-center gap-2">
+            {savedLabel && (
+              <span
+                className={`inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-hud ${
+                  autoError ? "text-red-400" : autoSaving || dirty ? "text-slate" : "text-cyan/80"
+                }`}
+                title={autoError ?? undefined}
+              >
+                {autoSaving ? (
+                  <Loader2 size={11} className="animate-spin" />
+                ) : autoError ? (
+                  <CloudOff size={11} />
+                ) : !dirty && lastSavedAt ? (
+                  <Check size={11} />
+                ) : null}
+                {savedLabel}
+              </span>
+            )}
             <span
               className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-mono text-[10px] uppercase tracking-hud ${
                 published ? "bg-cyan/10 text-cyan" : "bg-white/5 text-slate"
