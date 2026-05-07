@@ -4,10 +4,12 @@ import { ListMusic, ArrowUpRight, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { HudLabel } from "@/components/ui/HudLabel";
 import { usePlaylists } from "@/hooks/usePlaylists";
+import { useHoverAudio } from "@/components/audio/HoverAudioProvider";
 
 export function PlaylistsShelf() {
   const { playlists, loading } = usePlaylists();
   const reduced = useReducedMotion();
+  const hoverAudio = useHoverAudio();
 
   if (loading || playlists.length === 0) return null;
 
@@ -49,6 +51,10 @@ export function PlaylistsShelf() {
             key={p.id}
             to={`/playlists/${p.youtube_playlist_id}`}
             data-cursor="link"
+            onMouseEnter={() => hoverAudio.start({ id: p.youtube_playlist_id, kind: "playlist", title: p.title, thumbnail: p.thumbnail_url })}
+            onMouseLeave={() => hoverAudio.stop()}
+            onFocus={() => hoverAudio.start({ id: p.youtube_playlist_id, kind: "playlist", title: p.title, thumbnail: p.thumbnail_url })}
+            onBlur={() => hoverAudio.stop()}
             initial={reduced ? { opacity: 0 } : { opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-40px" }}
