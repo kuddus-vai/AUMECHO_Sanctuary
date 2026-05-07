@@ -648,6 +648,15 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
+function ErrorRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex gap-2">
+      <span className="w-14 shrink-0 uppercase tracking-hud text-slate">{label}</span>
+      <span className="break-all text-pure/90">{value}</span>
+    </div>
+  );
+}
+
 export default function BlogEditor() {
   return (
     <RequireAdmin>
