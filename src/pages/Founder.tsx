@@ -9,6 +9,9 @@ import founderImg from "@/assets/shuvo-mistry.jpg";
 const FB_URL = "https://www.facebook.com/shuvo.mistry.96/";
 
 export default function Founder() {
+  const { playlists, loading } = usePlaylists();
+  const featured = playlists.slice(0, 5);
+
   return (
     <RootLayout>
       <SEO
