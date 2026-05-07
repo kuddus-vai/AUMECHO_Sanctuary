@@ -4,6 +4,7 @@ import { Play } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatDateDDMMYYYY, formatViewCount } from "@/lib/format";
 import { useModal } from "@/store/modalStore";
+import { useHoverAudioHandlers } from "@/components/audio/HoverAudioProvider";
 import type { Video } from "@/lib/types";
 
 interface VideoCardProps {
