@@ -216,10 +216,16 @@ export default function Founder() {
                       viewport={{ once: true, margin: "-60px" }}
                       transition={{ duration: 0.55, delay: i * 0.07 }}
                     >
-                      <div className="group relative overflow-hidden rounded-2xl border border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.02)] transition-colors hover:border-[rgba(0,242,255,0.3)]">
+                      <div
+                        className="group relative overflow-hidden rounded-2xl border border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.02)] transition-colors hover:border-[rgba(0,242,255,0.3)]"
+                        onMouseEnter={() => handleHoverStart(p)}
+                        onMouseLeave={handleHoverEnd}
+                      >
                         <button
                           type="button"
                           onClick={() => setPreviewing(p)}
+                          onFocus={() => handleHoverStart(p)}
+                          onBlur={handleHoverEnd}
                           aria-label={`Preview ${p.title}`}
                           className="block w-full text-left"
                         >
