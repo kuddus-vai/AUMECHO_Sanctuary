@@ -579,7 +579,20 @@ function EditorInner() {
                           value={new Date(publishError.at).toLocaleTimeString()}
                         />
                       )}
-                      <div className="flex justify-end pt-1">
+                      <div className="flex items-center justify-end gap-1 pt-1">
+                        {publishError.attemptedState !== undefined && (
+                          <button
+                            type="button"
+                            disabled={publishToggling}
+                            onClick={() => void applyPublish(publishError.attemptedState!)}
+                            className="inline-flex items-center gap-1 rounded-sm bg-red-400/10 px-2 py-0.5 uppercase tracking-hud text-red-300 hover:bg-red-400/20 disabled:opacity-50"
+                          >
+                            {publishToggling ? (
+                              <Loader2 size={10} className="animate-spin" />
+                            ) : null}
+                            Retry publish sync
+                          </button>
+                        )}
                         <button
                           type="button"
                           onClick={() => {
