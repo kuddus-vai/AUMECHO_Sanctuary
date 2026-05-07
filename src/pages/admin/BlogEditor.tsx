@@ -460,23 +460,53 @@ function EditorInner() {
             </div>
 
             {/* Publish toggle */}
-            <div className="rounded-md border border-[rgba(255,255,255,0.1)] bg-void p-4">
+            <div
+              className={`rounded-md border bg-void p-4 transition ${
+                publishError ? "border-red-400/60" : "border-[rgba(255,255,255,0.1)]"
+              }`}
+            >
               <label className="flex items-center justify-between gap-3">
                 <div>
                   <p className="font-mono text-[10px] uppercase tracking-hud text-slate">Visibility</p>
-                  <p className="text-pure">{published ? "Published" : "Draft"}</p>
+                  <p className="flex items-center gap-2 text-pure">
+                    {published ? "Published" : "Draft"}
+                    {publishToggling && <Loader2 size={12} className="animate-spin text-slate" />}
+                  </p>
                 </div>
                 <button
                   type="button"
                   role="switch"
                   aria-checked={published}
-                  disabled={saving || autoSaving}
-                  onClick={() => {
-                    const next = !published;
+                  disabled={saving || autoSaving || publishToggling || !postId}
+                  onClick={async () => {
+                    if (!postId) return;
+                    const prev = published;
+                    const next = !prev;
+                    // Optimistic flip
                     setPublished(next);
-                    if (!isNew || postId) {
-                      void persist(next);
+                    setPublishToggling(true);
+                    setPublishError(null);
+                    const { error } = await supabase
+                      .from("blog_posts")
+                      .update({
+                        published: next,
+                        published_at: next ? new Date().toISOString() : null,
+                      })
+                      .eq("id", postId);
+                    setPublishToggling(false);
+                    if (error) {
+                      // Rollback
+                      setPublished(prev);
+                      setPublishError(error.message);
+                      toast({
+                        title: `Couldn't ${next ? "publish" : "unpublish"}`,
+                        description: error.message,
+                        variant: "destructive",
+                      });
+                      return;
                     }
+                    setLastSavedAt(new Date());
+                    toast({ title: next ? "Published" : "Moved to draft" });
                   }}
                   className={`relative h-6 w-11 rounded-full transition disabled:opacity-50 ${
                     published ? "bg-cyan" : "bg-white/15"
@@ -489,9 +519,24 @@ function EditorInner() {
                   />
                 </button>
               </label>
-              <p className="mt-2 font-mono text-[10px] text-slate">
-                {postId ? "Toggling syncs immediately." : "Save the post first to publish."}
-              </p>
+              {publishError ? (
+                <div className="mt-2 flex items-start justify-between gap-2">
+                  <p className="font-mono text-[10px] text-red-400" title={publishError}>
+                    Sync failed — change reverted.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setPublishError(null)}
+                    className="font-mono text-[10px] uppercase tracking-hud text-slate hover:text-pure"
+                  >
+                    Dismiss
+                  </button>
+                </div>
+              ) : (
+                <p className="mt-2 font-mono text-[10px] text-slate">
+                  {postId ? "Toggling syncs immediately." : "Save the post first to publish."}
+                </p>
+              )}
             </div>
 
             {/* Actions */}
