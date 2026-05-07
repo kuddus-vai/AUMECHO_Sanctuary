@@ -142,6 +142,45 @@ function EditorInner() {
     }
   };
 
+  const applyPublish = async (next: boolean) => {
+    if (!postId) return;
+    const prev = published;
+    // Optimistic flip
+    setPublished(next);
+    setPublishToggling(true);
+    setPublishError(null);
+    const { error } = await supabase
+      .from("blog_posts")
+      .update({
+        published: next,
+        published_at: next ? new Date().toISOString() : null,
+      })
+      .eq("id", postId);
+    setPublishToggling(false);
+    if (error) {
+      setPublished(prev);
+      const err = error as typeof error & { status?: number };
+      setPublishError({
+        message: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint,
+        status: err.status,
+        attemptedState: next,
+        at: new Date().toISOString(),
+      });
+      setErrorOpen(true);
+      toast({
+        title: `Couldn't ${next ? "publish" : "unpublish"}`,
+        description: error.message,
+        variant: "destructive",
+      });
+      return;
+    }
+    setLastSavedAt(new Date());
+    toast({ title: next ? "Published" : "Moved to draft" });
+  };
+
   // Auto-generate slug from title until user edits slug manually
   useEffect(() => {
     if (!slugTouched) setSlug(slugify(title));
@@ -487,46 +526,7 @@ function EditorInner() {
                   role="switch"
                   aria-checked={published}
                   disabled={saving || autoSaving || publishToggling || !postId}
-                  onClick={async () => {
-                    if (!postId) return;
-                    const prev = published;
-                    const next = !prev;
-                    // Optimistic flip
-                    setPublished(next);
-                    setPublishToggling(true);
-                    setPublishError(null);
-                    const { error } = await supabase
-                      .from("blog_posts")
-                      .update({
-                        published: next,
-                        published_at: next ? new Date().toISOString() : null,
-                      })
-                      .eq("id", postId);
-                    setPublishToggling(false);
-                    if (error) {
-                      // Rollback
-                      setPublished(prev);
-                      const err = error as typeof error & { status?: number };
-                      setPublishError({
-                        message: error.message,
-                        code: error.code,
-                        details: error.details,
-                        hint: error.hint,
-                        status: err.status,
-                        attemptedState: next,
-                        at: new Date().toISOString(),
-                      });
-                      setErrorOpen(true);
-                      toast({
-                        title: `Couldn't ${next ? "publish" : "unpublish"}`,
-                        description: error.message,
-                        variant: "destructive",
-                      });
-                      return;
-                    }
-                    setLastSavedAt(new Date());
-                    toast({ title: next ? "Published" : "Moved to draft" });
-                  }}
+                  onClick={() => void applyPublish(!published)}
                   className={`relative h-6 w-11 rounded-full transition disabled:opacity-50 ${
                     published ? "bg-cyan" : "bg-white/15"
                   }`}
@@ -579,7 +579,20 @@ function EditorInner() {
                           value={new Date(publishError.at).toLocaleTimeString()}
                         />
                       )}
-                      <div className="flex justify-end pt-1">
+                      <div className="flex items-center justify-end gap-1 pt-1">
+                        {publishError.attemptedState !== undefined && (
+                          <button
+                            type="button"
+                            disabled={publishToggling}
+                            onClick={() => void applyPublish(publishError.attemptedState!)}
+                            className="inline-flex items-center gap-1 rounded-sm bg-red-400/10 px-2 py-0.5 uppercase tracking-hud text-red-300 hover:bg-red-400/20 disabled:opacity-50"
+                          >
+                            {publishToggling ? (
+                              <Loader2 size={10} className="animate-spin" />
+                            ) : null}
+                            Retry publish sync
+                          </button>
+                        )}
                         <button
                           type="button"
                           onClick={() => {
