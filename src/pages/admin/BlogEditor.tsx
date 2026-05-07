@@ -468,8 +468,15 @@ function EditorInner() {
                   type="button"
                   role="switch"
                   aria-checked={published}
-                  onClick={() => setPublished(!published)}
-                  className={`relative h-6 w-11 rounded-full transition ${
+                  disabled={saving || autoSaving}
+                  onClick={() => {
+                    const next = !published;
+                    setPublished(next);
+                    if (!isNew || postId) {
+                      void persist(next);
+                    }
+                  }}
+                  className={`relative h-6 w-11 rounded-full transition disabled:opacity-50 ${
                     published ? "bg-cyan" : "bg-white/15"
                   }`}
                 >
@@ -480,6 +487,9 @@ function EditorInner() {
                   />
                 </button>
               </label>
+              <p className="mt-2 font-mono text-[10px] text-slate">
+                {postId ? "Toggling syncs immediately." : "Save the post first to publish."}
+              </p>
             </div>
 
             {/* Actions */}
