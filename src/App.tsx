@@ -16,6 +16,7 @@ import BlogPost from "./pages/BlogPost.tsx";
 import Community from "./pages/Community.tsx";
 import FAQ from "./pages/FAQ.tsx";
 import Auth from "./pages/Auth.tsx";
+import Founder from "./pages/Founder.tsx";
 import BlogAdmin from "./pages/admin/BlogAdmin.tsx";
 import BlogEditor from "./pages/admin/BlogEditor.tsx";
 
@@ -38,6 +39,7 @@ const App = () => (
                 <Route path="/blog/:slug" element={<BlogPost />} />
                 <Route path="/community" element={<Community />} />
                 <Route path="/faq" element={<FAQ />} />
+                <Route path="/founder" element={<Founder />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/admin/blog" element={<BlogAdmin />} />
                 <Route path="/admin/blog/:id" element={<BlogEditor />} />
