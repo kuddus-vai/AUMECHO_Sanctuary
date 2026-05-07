@@ -6,7 +6,7 @@ import { RequireAdmin } from "@/components/auth/RequireAdmin";
 import { MarkdownView } from "@/components/blog/MarkdownView";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { X, Upload, Eye, FileText, Loader2, Check, CloudOff, ChevronDown, ChevronRight, AlertCircle } from "lucide-react";
+import { X, Upload, Eye, FileText, Loader2, Check, CloudOff, ChevronDown, ChevronRight, AlertCircle, Copy } from "lucide-react";
 
 function slugify(s: string) {
   return s
@@ -593,6 +593,34 @@ function EditorInner() {
                             Retry publish sync
                           </button>
                         )}
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            const text = JSON.stringify(
+                              {
+                                context: "blog publish toggle",
+                                postId,
+                                ...publishError,
+                              },
+                              null,
+                              2,
+                            );
+                            try {
+                              await navigator.clipboard.writeText(text);
+                              toast({ title: "Error details copied" });
+                            } catch {
+                              toast({
+                                title: "Couldn't copy",
+                                description: "Clipboard access was blocked.",
+                                variant: "destructive",
+                              });
+                            }
+                          }}
+                          className="inline-flex items-center gap-1 rounded-sm px-2 py-0.5 uppercase tracking-hud text-slate hover:text-pure"
+                        >
+                          <Copy size={10} />
+                          Copy details
+                        </button>
                         <button
                           type="button"
                           onClick={() => {
