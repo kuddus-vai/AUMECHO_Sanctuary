@@ -19,6 +19,12 @@ export function VideoCard({ video, index, className, layout = "default" }: Video
   const reduced = useReducedMotion();
   const { openModal } = useModal();
   const [imgLoaded, setImgLoaded] = useState(false);
+  const hover = useHoverAudioHandlers({
+    id: video.youtube_id,
+    kind: "video",
+    title: video.title,
+    thumbnail: video.thumbnail_url,
+  });
 
   const stagger = Math.min(index, 8) * 0.05;
 
@@ -26,6 +32,7 @@ export function VideoCard({ video, index, className, layout = "default" }: Video
     <motion.button
       data-cursor="video"
       onClick={() => openModal(video)}
+      {...hover}
       initial={reduced ? { opacity: 0 } : { opacity: 0, y: 32, scale: 0.97 }}
       whileInView={
         reduced
