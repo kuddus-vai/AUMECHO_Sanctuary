@@ -291,6 +291,96 @@ export default function Founder() {
           </motion.div>
         </div>
       </section>
+
+      {typeof document !== "undefined" &&
+        createPortal(
+          <AnimatePresence>
+            {previewing && (
+              <motion.div
+                key="founder-preview-backdrop"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                onClick={() => setPreviewing(null)}
+                className="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-8"
+                style={{
+                  background: "rgba(5,5,7,0.92)",
+                  backdropFilter: "blur(24px)",
+                  WebkitBackdropFilter: "blur(24px)",
+                }}
+              >
+                <motion.div
+                  key="founder-preview-shell"
+                  onClick={(e) => e.stopPropagation()}
+                  initial={{ opacity: 0, scale: 0.94, y: 30 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.96, y: 20 }}
+                  transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+                  className="relative flex w-full max-w-[1000px] flex-col overflow-hidden rounded-[20px] border border-[rgba(255,255,255,0.1)]"
+                  style={{
+                    background: "rgba(10,10,15,0.9)",
+                    boxShadow: "0 0 80px rgba(0,0,0,0.8), 0 0 40px rgba(0,242,255,0.05)",
+                  }}
+                >
+                  <div className="flex h-[52px] shrink-0 items-center justify-between gap-4 border-b border-[rgba(255,255,255,0.06)] bg-[rgba(10,10,15,0.95)] px-4 sm:px-6">
+                    <div className="flex min-w-0 items-center gap-3">
+                      <span className="rounded-full border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.04)] px-2 py-[3px] font-mono text-[9px] uppercase tracking-hud text-ghost">
+                        Playlist · {previewing.item_count} tracks
+                      </span>
+                      <h2 className="truncate text-sm font-medium tracking-tighter text-pure">
+                        {previewing.title}
+                      </h2>
+                    </div>
+                    <div className="flex shrink-0 items-center gap-2">
+                      <a
+                        href={`https://www.youtube.com/playlist?list=${previewing.youtube_playlist_id}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        aria-label="Open on YouTube"
+                        className="flex h-9 w-9 items-center justify-center rounded-full border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.03)] text-ghost transition-colors hover:border-[rgba(0,242,255,0.5)] hover:text-pure"
+                      >
+                        <ExternalLink size={14} />
+                      </a>
+                      <button
+                        onClick={() => setPreviewing(null)}
+                        aria-label="Close"
+                        className="flex h-9 w-9 items-center justify-center rounded-full border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.03)] text-ghost transition-colors hover:border-[rgba(0,242,255,0.5)] hover:text-pure"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="relative w-full bg-black" style={{ aspectRatio: "16 / 9" }}>
+                    <iframe
+                      key={previewing.id}
+                      title={previewing.title}
+                      src={`https://www.youtube.com/embed/videoseries?list=${previewing.youtube_playlist_id}&autoplay=1&rel=0&modestbranding=1`}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      className="absolute inset-0 h-full w-full"
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between gap-4 border-t border-[rgba(255,255,255,0.06)] p-5">
+                    <p className="text-[13px] text-ghost">
+                      Previewing inline — open the full playlist for the complete experience.
+                    </p>
+                    <Link
+                      to={`/playlists/${previewing.id}`}
+                      onClick={() => setPreviewing(null)}
+                      className="inline-flex items-center gap-2 rounded-full border border-[rgba(0,242,255,0.4)] bg-cyan/10 px-4 py-2 font-mono text-[10px] uppercase tracking-hud text-pure transition-colors hover:bg-cyan/20"
+                    >
+                      Open playlist
+                    </Link>
+                  </div>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>,
+          document.body
+        )}
     </RootLayout>
   );
 }
