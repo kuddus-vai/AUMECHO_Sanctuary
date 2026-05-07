@@ -1,9 +1,12 @@
-import { motion } from "framer-motion";
-import { ExternalLink, Music, Sparkles, ScrollText, Play, ListMusic } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
+import { ExternalLink, Music, Sparkles, ScrollText, Play, ListMusic, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { RootLayout } from "@/components/layout/RootLayout";
 import { SEO } from "@/components/seo/SEO";
 import { usePlaylists } from "@/hooks/usePlaylists";
+import type { Playlist } from "@/lib/types";
 import founderImg from "@/assets/shuvo-mistry.jpg";
 
 const FB_URL = "https://www.facebook.com/shuvo.mistry.96/";
@@ -11,6 +14,20 @@ const FB_URL = "https://www.facebook.com/shuvo.mistry.96/";
 export default function Founder() {
   const { playlists, loading } = usePlaylists();
   const featured = playlists.slice(0, 5);
+  const [previewing, setPreviewing] = useState<Playlist | null>(null);
+
+  useEffect(() => {
+    if (!previewing) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setPreviewing(null);
+    window.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [previewing]);
+
 
   return (
     <RootLayout>
