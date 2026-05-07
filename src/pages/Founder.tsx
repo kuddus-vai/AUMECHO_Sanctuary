@@ -1,7 +1,9 @@
 import { motion } from "framer-motion";
-import { ExternalLink, Music, Sparkles, ScrollText } from "lucide-react";
+import { ExternalLink, Music, Sparkles, ScrollText, Play, ListMusic } from "lucide-react";
+import { Link } from "react-router-dom";
 import { RootLayout } from "@/components/layout/RootLayout";
 import { SEO } from "@/components/seo/SEO";
+import { usePlaylists } from "@/hooks/usePlaylists";
 import founderImg from "@/assets/shuvo-mistry.jpg";
 
 const FB_URL = "https://www.facebook.com/shuvo.mistry.96/";
