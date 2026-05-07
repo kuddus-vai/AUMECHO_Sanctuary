@@ -15,6 +15,22 @@ export default function Founder() {
   const { playlists, loading } = usePlaylists();
   const featured = playlists.slice(0, 5);
   const [previewing, setPreviewing] = useState<Playlist | null>(null);
+  const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const leaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const cancelTimers = () => {
+    if (hoverTimer.current) { clearTimeout(hoverTimer.current); hoverTimer.current = null; }
+    if (leaveTimer.current) { clearTimeout(leaveTimer.current); leaveTimer.current = null; }
+  };
+  const handleHoverStart = (p: Playlist) => {
+    cancelTimers();
+    hoverTimer.current = setTimeout(() => setPreviewing(p), 280);
+  };
+  const handleHoverEnd = () => {
+    cancelTimers();
+    leaveTimer.current = setTimeout(() => setPreviewing(null), 180);
+  };
+  useEffect(() => () => cancelTimers(), []);
 
   useEffect(() => {
     if (!previewing) return;
