@@ -595,6 +595,34 @@ function EditorInner() {
                         )}
                         <button
                           type="button"
+                          onClick={async () => {
+                            const text = JSON.stringify(
+                              {
+                                context: "blog publish toggle",
+                                postId,
+                                ...publishError,
+                              },
+                              null,
+                              2,
+                            );
+                            try {
+                              await navigator.clipboard.writeText(text);
+                              toast({ title: "Error details copied" });
+                            } catch {
+                              toast({
+                                title: "Couldn't copy",
+                                description: "Clipboard access was blocked.",
+                                variant: "destructive",
+                              });
+                            }
+                          }}
+                          className="inline-flex items-center gap-1 rounded-sm px-2 py-0.5 uppercase tracking-hud text-slate hover:text-pure"
+                        >
+                          <Copy size={10} />
+                          Copy details
+                        </button>
+                        <button
+                          type="button"
                           onClick={() => {
                             setPublishError(null);
                             setErrorOpen(false);
