@@ -142,6 +142,45 @@ function EditorInner() {
     }
   };
 
+  const applyPublish = async (next: boolean) => {
+    if (!postId) return;
+    const prev = published;
+    // Optimistic flip
+    setPublished(next);
+    setPublishToggling(true);
+    setPublishError(null);
+    const { error } = await supabase
+      .from("blog_posts")
+      .update({
+        published: next,
+        published_at: next ? new Date().toISOString() : null,
+      })
+      .eq("id", postId);
+    setPublishToggling(false);
+    if (error) {
+      setPublished(prev);
+      const err = error as typeof error & { status?: number };
+      setPublishError({
+        message: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint,
+        status: err.status,
+        attemptedState: next,
+        at: new Date().toISOString(),
+      });
+      setErrorOpen(true);
+      toast({
+        title: `Couldn't ${next ? "publish" : "unpublish"}`,
+        description: error.message,
+        variant: "destructive",
+      });
+      return;
+    }
+    setLastSavedAt(new Date());
+    toast({ title: next ? "Published" : "Moved to draft" });
+  };
+
   // Auto-generate slug from title until user edits slug manually
   useEffect(() => {
     if (!slugTouched) setSlug(slugify(title));
