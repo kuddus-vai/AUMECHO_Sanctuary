@@ -6,6 +6,7 @@ import { HudLabel } from "@/components/ui/HudLabel";
 import { useVideos } from "@/hooks/useVideos";
 import { useChannelInfo, type ChannelStats, type CommunityPost } from "@/hooks/useChannelInfo";
 import { useModal } from "@/store/modalStore";
+import { useHoverAudioHandlers } from "@/components/audio/HoverAudioProvider";
 import { formatDateDDMMYYYY, timeAgo } from "@/lib/format";
 import type { Video } from "@/lib/types";
 
@@ -441,6 +442,11 @@ function CommunityPostRow({ post, handle }: { post: CommunityPost; handle: strin
 /* ---------------- Center: FEATURED ---------------- */
 function FeaturedPanel({ video, loading }: { video?: Video; loading: boolean }) {
   const { openModal } = useModal();
+  const hover = useHoverAudioHandlers(
+    video
+      ? { id: video.youtube_id, kind: "video", title: video.title, thumbnail: video.thumbnail_url }
+      : null
+  );
 
   if (!video) {
     return (
@@ -460,6 +466,7 @@ function FeaturedPanel({ video, loading }: { video?: Video; loading: boolean }) 
         type="button"
         data-cursor="video"
         onClick={() => openModal(video)}
+        {...hover}
         className="group relative block w-full text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(0,242,255,0.5)]"
       >
         <div className="relative w-full overflow-hidden" style={{ aspectRatio: "16 / 9" }}>
@@ -551,29 +558,7 @@ function RecentPanel({ videos, loading }: { videos: Video[]; loading: boolean })
             return (
               <li key={video?.id ?? i}>
                 {video ? (
-                  <motion.button
-                    type="button"
-                    data-cursor="video"
-                    onClick={() => openModal(video)}
-                    whileHover={{ x: 4 }}
-                    transition={{ type: "spring", stiffness: 300, damping: 22 }}
-                    className="group relative flex w-full items-center gap-3 rounded-md border border-transparent px-2 py-2 text-left transition-[background-color,border-color] duration-300 hover:bg-[rgba(255,255,255,0.04)] hover:border-l-cyan focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(0,242,255,0.5)]"
-                    style={{ borderLeftWidth: 1 }}
-                  >
-                    <div className="h-[34px] w-[60px] shrink-0 overflow-hidden rounded-[3px] bg-surface">
-                      <img
-                        src={video.thumbnail_url}
-                        alt=""
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate text-[11px] text-pure">{video.title}</div>
-                      <div className="font-mono text-[9px] tracking-hud text-slate">
-                        {timeAgo(video.published_at)}
-                      </div>
-                    </div>
-                  </motion.button>
+                  <RecentRow video={video} onOpen={() => openModal(video)} />
                 ) : (
                   <div className="h-[50px] w-full rounded-md text-shimmer" />
                 )}
@@ -589,6 +574,34 @@ function RecentPanel({ videos, loading }: { videos: Video[]; loading: boolean })
   );
 }
 
+function RecentRow({ video, onOpen }: { video: Video; onOpen: () => void }) {
+  const hover = useHoverAudioHandlers({
+    id: video.youtube_id,
+    kind: "video",
+    title: video.title,
+    thumbnail: video.thumbnail_url,
+  });
+  return (
+    <motion.button
+      type="button"
+      data-cursor="video"
+      onClick={onOpen}
+      {...hover}
+      whileHover={{ x: 4 }}
+      transition={{ type: "spring", stiffness: 300, damping: 22 }}
+      className="group relative flex w-full items-center gap-3 rounded-md border border-transparent px-2 py-2 text-left transition-[background-color,border-color] duration-300 hover:bg-[rgba(255,255,255,0.04)] hover:border-l-cyan focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(0,242,255,0.5)]"
+      style={{ borderLeftWidth: 1 }}
+    >
+      <div className="h-[34px] w-[60px] shrink-0 overflow-hidden rounded-[3px] bg-surface">
+        <img src={video.thumbnail_url} alt="" className="h-full w-full object-cover" />
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="truncate text-[11px] text-pure">{video.title}</div>
+        <div className="font-mono text-[9px] tracking-hud text-slate">{timeAgo(video.published_at)}</div>
+      </div>
+    </motion.button>
+  );
+}
 
 /* ---------------- Ticker ---------------- */
 function TickerBar() {
