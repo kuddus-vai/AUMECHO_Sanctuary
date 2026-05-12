@@ -243,4 +243,67 @@ const PlaylistDetail = () => {
   );
 };
 
+function EpisodeCard({ it, i, onPlay }: { it: ItemRow; i: number; onPlay: () => void }) {
+  const hover = useHoverAudioHandlers({
+    id: it.youtube_id,
+    kind: "video",
+    title: it.title,
+    thumbnail: it.thumbnail_url,
+  });
+  return (
+    <motion.button
+      data-cursor="video"
+      onClick={onPlay}
+      {...hover}
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, delay: Math.min(i, 12) * 0.03, ease: [0.16, 1, 0.3, 1] }}
+      className="group relative h-[220px] overflow-hidden rounded-xl border border-[rgba(255,255,255,0.07)] bg-surface text-left transition-[border-color,box-shadow] duration-300 hover:border-[rgba(0,242,255,0.35)] hover:shadow-glow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(0,242,255,0.5)]"
+    >
+      <img
+        src={it.thumbnail_url}
+        alt={it.title}
+        loading="lazy"
+        className="absolute inset-0 h-full w-full object-cover transition-transform duration-[700ms] ease-out group-hover:scale-[1.06]"
+      />
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            "linear-gradient(to top, rgba(5,5,7,0.95) 0%, rgba(5,5,7,0.45) 45%, transparent 80%)",
+        }}
+      />
+      <div className="absolute left-3 top-3 flex items-center gap-1.5">
+        <span className="rounded-full border border-[rgba(0,242,255,0.4)] bg-[rgba(0,0,0,0.55)] px-2 py-[3px] font-mono text-[9px] tracking-hud text-cyan backdrop-blur-md">
+          EP {String(it.position + 1).padStart(2, "0")}
+        </span>
+        {it.duration && (
+          <span className="rounded-full border border-[rgba(255,255,255,0.12)] bg-[rgba(0,0,0,0.55)] px-2 py-[3px] font-mono text-[9px] tracking-hud text-pure backdrop-blur-md">
+            {it.duration}
+          </span>
+        )}
+      </div>
+      <div className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full border border-[rgba(255,255,255,0.25)] bg-[rgba(255,255,255,0.08)] backdrop-blur-md shadow-glow-sm">
+          <Play size={18} className="text-pure" fill="currentColor" />
+        </div>
+      </div>
+      <div className="absolute bottom-0 left-0 right-0 p-3">
+        <h3 className="line-clamp-2 text-sm font-medium leading-snug tracking-tight text-pure">
+          {it.title}
+        </h3>
+        <div className="mt-1.5 flex items-center gap-2 font-mono text-[9px] tracking-hud text-slate">
+          <span>{formatDateDDMMYYYY(it.published_at)}</span>
+          {it.view_count !== null && (
+            <>
+              <span className="h-[2px] w-[2px] rounded-full bg-slate" />
+              <span>{formatViewCount(it.view_count)}</span>
+            </>
+          )}
+        </div>
+      </div>
+    </motion.button>
+  );
+}
+
 export default PlaylistDetail;
