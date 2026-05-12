@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Facebook, Instagram, Mail, Music, Youtube } from "lucide-react";
+import { Facebook, Instagram, Mail, Music, Music2, Youtube } from "lucide-react";
 import { RootLayout } from "@/components/layout/RootLayout";
 import { SEO } from "@/components/seo/SEO";
 import { supabase } from "@/integrations/supabase/client";
@@ -23,6 +23,12 @@ const CHANNELS = [
     desc: "Visuals, snippets, and studio life.",
     href: "https://www.instagram.com/aumecho.official",
     Icon: Instagram,
+  },
+  {
+    label: "TikTok",
+    desc: "Short clips, snippets, and moments.",
+    href: "https://www.tiktok.com/@aum.echo",
+    Icon: Music2,
   },
   {
     label: "Spotify",
