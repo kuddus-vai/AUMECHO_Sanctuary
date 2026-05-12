@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { ExternalLink, Music, Sparkles, ScrollText, Play, ListMusic, X } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -374,5 +374,68 @@ export default function Founder() {
           document.body
         )}
     </RootLayout>
+  );
+}
+
+function FeaturedPlaylistCard({ p, i, onOpen }: { p: Playlist; i: number; onOpen: () => void }) {
+  const hover = useHoverAudioHandlers({
+    id: p.youtube_playlist_id,
+    kind: "playlist",
+    title: p.title,
+    thumbnail: p.thumbnail_url,
+  });
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{ duration: 0.55, delay: i * 0.07 }}
+    >
+      <div
+        className="group relative overflow-hidden rounded-2xl border border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.02)] transition-colors hover:border-[rgba(0,242,255,0.3)]"
+        {...hover}
+      >
+        <button
+          type="button"
+          onClick={onOpen}
+          aria-label={`Preview ${p.title}`}
+          className="block w-full text-left"
+        >
+          <div className="relative aspect-video overflow-hidden">
+            <img
+              src={p.thumbnail_url}
+              alt={p.title}
+              loading="lazy"
+              className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+            <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity group-hover:opacity-100">
+              <span className="flex h-12 w-12 items-center justify-center rounded-full border border-cyan/60 bg-black/50 backdrop-blur-sm">
+                <Play size={18} className="ml-0.5 text-cyan" fill="currentColor" />
+              </span>
+            </div>
+            {p.is_featured && (
+              <span className="absolute left-3 top-3 rounded-full bg-cyan/20 px-2 py-1 font-mono text-[9px] uppercase tracking-hud text-cyan backdrop-blur-sm">
+                Featured
+              </span>
+            )}
+          </div>
+          <div className="p-5">
+            <h3 className="line-clamp-2 text-[15px] font-medium leading-snug tracking-tight text-pure transition-colors group-hover:text-cyan">
+              {p.title}
+            </h3>
+            <p className="mt-2 font-mono text-[10px] uppercase tracking-hud text-ghost">
+              {p.item_count} tracks · Tap to preview
+            </p>
+          </div>
+        </button>
+        <Link
+          to={`/playlists/${p.id}`}
+          className="absolute bottom-3 right-3 rounded-full border border-[rgba(255,255,255,0.1)] bg-black/50 px-3 py-1 font-mono text-[9px] uppercase tracking-hud text-ghost backdrop-blur-sm transition-colors hover:text-pure hover:border-cyan/50"
+        >
+          Open
+        </Link>
+      </div>
+    </motion.div>
   );
 }
