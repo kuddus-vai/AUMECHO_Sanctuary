@@ -442,6 +442,11 @@ function CommunityPostRow({ post, handle }: { post: CommunityPost; handle: strin
 /* ---------------- Center: FEATURED ---------------- */
 function FeaturedPanel({ video, loading }: { video?: Video; loading: boolean }) {
   const { openModal } = useModal();
+  const hover = useHoverAudioHandlers(
+    video
+      ? { id: video.youtube_id, kind: "video", title: video.title, thumbnail: video.thumbnail_url }
+      : null
+  );
 
   if (!video) {
     return (
@@ -461,6 +466,7 @@ function FeaturedPanel({ video, loading }: { video?: Video; loading: boolean }) 
         type="button"
         data-cursor="video"
         onClick={() => openModal(video)}
+        {...hover}
         className="group relative block w-full text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(0,242,255,0.5)]"
       >
         <div className="relative w-full overflow-hidden" style={{ aspectRatio: "16 / 9" }}>
