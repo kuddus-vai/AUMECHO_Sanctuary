@@ -6,6 +6,7 @@ import { HudLabel } from "@/components/ui/HudLabel";
 import { useVideos } from "@/hooks/useVideos";
 import { useChannelInfo, type ChannelStats, type CommunityPost } from "@/hooks/useChannelInfo";
 import { useModal } from "@/store/modalStore";
+import { useHoverAudioHandlers } from "@/components/audio/HoverAudioProvider";
 import { formatDateDDMMYYYY, timeAgo } from "@/lib/format";
 import type { Video } from "@/lib/types";
 
