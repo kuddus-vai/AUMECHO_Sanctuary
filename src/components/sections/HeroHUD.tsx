@@ -574,6 +574,34 @@ function RecentPanel({ videos, loading }: { videos: Video[]; loading: boolean })
   );
 }
 
+function RecentRow({ video, onOpen }: { video: Video; onOpen: () => void }) {
+  const hover = useHoverAudioHandlers({
+    id: video.youtube_id,
+    kind: "video",
+    title: video.title,
+    thumbnail: video.thumbnail_url,
+  });
+  return (
+    <motion.button
+      type="button"
+      data-cursor="video"
+      onClick={onOpen}
+      {...hover}
+      whileHover={{ x: 4 }}
+      transition={{ type: "spring", stiffness: 300, damping: 22 }}
+      className="group relative flex w-full items-center gap-3 rounded-md border border-transparent px-2 py-2 text-left transition-[background-color,border-color] duration-300 hover:bg-[rgba(255,255,255,0.04)] hover:border-l-cyan focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(0,242,255,0.5)]"
+      style={{ borderLeftWidth: 1 }}
+    >
+      <div className="h-[34px] w-[60px] shrink-0 overflow-hidden rounded-[3px] bg-surface">
+        <img src={video.thumbnail_url} alt="" className="h-full w-full object-cover" />
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="truncate text-[11px] text-pure">{video.title}</div>
+        <div className="font-mono text-[9px] tracking-hud text-slate">{timeAgo(video.published_at)}</div>
+      </div>
+    </motion.button>
+  );
+}
 
 /* ---------------- Ticker ---------------- */
 function TickerBar() {
