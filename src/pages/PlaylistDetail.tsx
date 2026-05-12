@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { ArrowLeft, ExternalLink, ListMusic, Play } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useModal } from "@/store/modalStore";
+import { useHoverAudioHandlers } from "@/components/audio/HoverAudioProvider";
 import { usePlaylists } from "@/hooks/usePlaylists";
 import { useChannelInfo } from "@/hooks/useChannelInfo";
 import { RootLayout } from "@/components/layout/RootLayout";
