@@ -423,7 +423,7 @@ function BookingForm() {
       expected_attendance: parsed.data.expected_attendance || null,
       budget_range: parsed.data.budget_range || null,
     };
-    const { error } = await supabase.from("booking_inquiries").insert(payload);
+    const { error } = await supabase.from("booking_inquiries").insert([payload]);
     setSubmitting(false);
     if (error) {
       toast.error("Couldn't send inquiry. Please try again.");
