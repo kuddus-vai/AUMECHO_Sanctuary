@@ -14,7 +14,7 @@ const DEFAULT_IMAGE = `${SITE}/og-image.jpg`;
 
 export function SEO({
   title,
-  description = "AUMECHO — lofi music for focused minds. Series, shorts, and curated playlists.",
+  description = "AumEcho — Sanskrit mantras, Hindi bhajans, and Vedic chants for meditation, healing, focus, and bhakti, including powerful 108x repetitions.",
   canonical,
   image = DEFAULT_IMAGE,
   type = "website",
