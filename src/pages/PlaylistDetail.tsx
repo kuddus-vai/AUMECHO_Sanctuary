@@ -8,6 +8,7 @@ import { useHoverAudioHandlers } from "@/components/audio/HoverAudioProvider";
 import { usePlaylists } from "@/hooks/usePlaylists";
 import { useChannelInfo } from "@/hooks/useChannelInfo";
 import { RootLayout } from "@/components/layout/RootLayout";
+import { SEO } from "@/components/seo/SEO";
 import { HudLabel } from "@/components/ui/HudLabel";
 import { SkeletonCard } from "@/components/ui/SkeletonCard";
 import { formatDateDDMMYYYY, formatViewCount } from "@/lib/format";
