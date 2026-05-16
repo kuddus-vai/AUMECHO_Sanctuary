@@ -413,15 +413,18 @@ function BookingForm() {
       return;
     }
     setSubmitting(true);
+    const d = parsed.data;
     const payload = {
-      ...parsed.data,
-      phone: parsed.data.phone || null,
-      event_date: parsed.data.event_date || null,
-      event_type: parsed.data.event_type || null,
-      venue: parsed.data.venue || null,
-      city: parsed.data.city || null,
-      expected_attendance: parsed.data.expected_attendance || null,
-      budget_range: parsed.data.budget_range || null,
+      name: d.name,
+      email: d.email,
+      message: d.message,
+      phone: d.phone || null,
+      event_date: d.event_date || null,
+      event_type: d.event_type || null,
+      venue: d.venue || null,
+      city: d.city || null,
+      expected_attendance: d.expected_attendance || null,
+      budget_range: d.budget_range || null,
     };
     const { error } = await supabase.from("booking_inquiries").insert([payload]);
     setSubmitting(false);
