@@ -1,0 +1,16 @@
+# AumEcho
+
+> Sanskrit mantras, Hindi bhajans, and Vedic chants for meditation, healing, focus, and bhakti — including powerful 108x repetitions.
+
+## Pages
+
+- [Home](/): Featured series, shorts, and curated mantra playlists.
+- [Blog](/blog): Articles on mantra practice, meditation, and bhakti.
+- [Community](/community): Connect with the AumEcho sangha.
+- [FAQ](/faq): Common questions about mantras and practice.
+- [Founder](/founder): About the founder of AumEcho.
+- [Booking](/booking): Book Aum Echo for live concerts and events.
+
+## Optional
+
+- [Welcome to AumEcho](/blog/welcome-to-aumecho)
