@@ -12,6 +12,7 @@ const NAV_LINKS: NavItem[] = [
   { label: "Archive", href: "/#archive" },
   { label: "Blog", href: "/blog", route: true },
   { label: "Founder", href: "/founder", route: true },
+  { label: "Booking", href: "/booking", route: true },
   { label: "Community", href: "/community", route: true },
   { label: "FAQ", href: "/faq", route: true },
 ];

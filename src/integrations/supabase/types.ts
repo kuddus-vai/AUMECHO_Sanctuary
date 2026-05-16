@@ -56,6 +56,57 @@ export type Database = {
         }
         Relationships: []
       }
+      booking_inquiries: {
+        Row: {
+          budget_range: string | null
+          city: string | null
+          created_at: string
+          email: string
+          event_date: string | null
+          event_type: string | null
+          expected_attendance: string | null
+          id: string
+          message: string
+          name: string
+          phone: string | null
+          status: string
+          updated_at: string
+          venue: string | null
+        }
+        Insert: {
+          budget_range?: string | null
+          city?: string | null
+          created_at?: string
+          email: string
+          event_date?: string | null
+          event_type?: string | null
+          expected_attendance?: string | null
+          id?: string
+          message: string
+          name: string
+          phone?: string | null
+          status?: string
+          updated_at?: string
+          venue?: string | null
+        }
+        Update: {
+          budget_range?: string | null
+          city?: string | null
+          created_at?: string
+          email?: string
+          event_date?: string | null
+          event_type?: string | null
+          expected_attendance?: string | null
+          id?: string
+          message?: string
+          name?: string
+          phone?: string | null
+          status?: string
+          updated_at?: string
+          venue?: string | null
+        }
+        Relationships: []
+      }
       playlists: {
         Row: {
           created_at: string
@@ -107,6 +158,48 @@ export type Database = {
           created_at?: string
           email?: string
           id?: string
+        }
+        Relationships: []
+      }
+      tour_dates: {
+        Row: {
+          city: string
+          country: string | null
+          created_at: string
+          event_date: string
+          id: string
+          is_published: boolean
+          sort_order: number
+          status: string
+          ticket_url: string | null
+          updated_at: string
+          venue: string
+        }
+        Insert: {
+          city: string
+          country?: string | null
+          created_at?: string
+          event_date: string
+          id?: string
+          is_published?: boolean
+          sort_order?: number
+          status?: string
+          ticket_url?: string | null
+          updated_at?: string
+          venue: string
+        }
+        Update: {
+          city?: string
+          country?: string | null
+          created_at?: string
+          event_date?: string
+          id?: string
+          is_published?: boolean
+          sort_order?: number
+          status?: string
+          ticket_url?: string | null
+          updated_at?: string
+          venue?: string
         }
         Relationships: []
       }
