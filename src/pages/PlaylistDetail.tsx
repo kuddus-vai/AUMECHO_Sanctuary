@@ -96,6 +96,32 @@ const PlaylistDetail = () => {
 
   return (
     <RootLayout>
+      <SEO
+        title={playlist ? `${playlist.title} — AumEcho Series` : "AumEcho Series"}
+        description={
+          playlist?.description?.slice(0, 160) ||
+          `Listen to ${playlist?.title ?? "this AumEcho series"} — Sanskrit mantras and Vedic chants curated for meditation and bhakti.`
+        }
+        canonical={`https://aumecho.hightechenterprise.xyz/playlists/${id}`}
+        image={playlist?.thumbnail_url ?? undefined}
+        type="article"
+        jsonLd={
+          playlist
+            ? {
+                "@context": "https://schema.org",
+                "@type": "ItemList",
+                name: playlist.title,
+                numberOfItems: items.length || playlist.item_count,
+                itemListElement: items.slice(0, 25).map((it) => ({
+                  "@type": "ListItem",
+                  position: it.position + 1,
+                  name: it.title,
+                  url: `https://www.youtube.com/watch?v=${it.youtube_id}`,
+                })),
+              }
+            : undefined
+        }
+      />
       <div className="pt-8">
         {/* Header / hero */}
         <section className="relative mx-auto max-w-[1400px] px-4 pb-10 pt-6 sm:px-6 lg:px-8">
