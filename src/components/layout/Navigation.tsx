@@ -41,11 +41,11 @@ export function Navigation() {
           WebkitBackdropFilter: "blur(20px)",
         }}
       >
-        <div className="mx-auto grid h-full max-w-[1400px] grid-cols-[auto_1fr_auto] items-center gap-6 px-5 sm:px-8 md:grid-cols-3">
-          {/* Logo — left column */}
+        <div className="mx-auto flex h-full max-w-[1400px] items-center justify-between px-5 sm:px-8">
+          {/* Logo */}
           <Link
             to="/"
-            className="flex items-center gap-2.5 justify-self-start"
+            className="flex items-center gap-2.5"
             aria-label="AUMECHO home"
           >
             {logoUrl ? (
@@ -70,30 +70,21 @@ export function Navigation() {
             </span>
           </Link>
 
-          {/* Desktop nav — center column */}
-          <nav className="hidden items-center justify-center gap-6 lg:gap-8 md:flex">
+          {/* Desktop nav */}
+          <nav className="hidden items-center gap-8 md:flex">
             {NAV_LINKS.map((l) => (
               <NavLink key={l.label} {...l} />
             ))}
           </nav>
 
-          {/* Right column — CTA on desktop, menu on mobile */}
-          <div className="flex items-center justify-end">
-            <Link
-              to="/booking"
-              className="hidden md:inline-flex items-center gap-2 rounded-full border border-[rgba(0,242,255,0.4)] bg-cyan/10 px-4 py-1.5 font-mono text-[11px] uppercase tracking-hud text-pure shadow-glow-sm transition-colors hover:bg-cyan/20"
-            >
-              <span className="h-1.5 w-1.5 rounded-full bg-cyan shadow-glow-sm" />
-              Book Session
-            </Link>
-            <button
-              onClick={() => setOpen(true)}
-              aria-label="Open menu"
-              className="md:hidden flex h-9 w-9 items-center justify-center rounded-full border border-[rgba(255,255,255,0.1)] text-ghost hover:text-pure hover:border-[rgba(0,242,255,0.4)] transition-colors"
-            >
-              <Menu size={16} />
-            </button>
-          </div>
+          {/* Mobile trigger */}
+          <button
+            onClick={() => setOpen(true)}
+            aria-label="Open menu"
+            className="md:hidden flex h-9 w-9 items-center justify-center rounded-full border border-[rgba(255,255,255,0.1)] text-ghost hover:text-pure hover:border-[rgba(0,242,255,0.4)] transition-colors"
+          >
+            <Menu size={16} />
+          </button>
         </div>
       </header>
 
