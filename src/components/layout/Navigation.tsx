@@ -41,11 +41,11 @@ export function Navigation() {
           WebkitBackdropFilter: "blur(20px)",
         }}
       >
-        <div className="mx-auto flex h-full max-w-[1400px] items-center justify-between px-5 sm:px-8">
-          {/* Logo */}
+        <div className="mx-auto grid h-full max-w-[1400px] grid-cols-[auto_1fr_auto] items-center gap-6 px-5 sm:px-8 md:grid-cols-3">
+          {/* Logo — left column */}
           <Link
             to="/"
-            className="flex items-center gap-2.5"
+            className="flex items-center gap-2.5 justify-self-start"
             aria-label="AUMECHO home"
           >
             {logoUrl ? (
