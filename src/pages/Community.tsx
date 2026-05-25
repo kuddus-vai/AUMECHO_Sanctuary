@@ -75,7 +75,7 @@ export default function Community() {
         </header>
 
         {/* 3-column: Feed · Featured · Recent */}
-        <section className="mt-14 grid gap-6 lg:grid-cols-[1.4fr_1fr_1fr]">
+        <section className="mt-14 grid grid-cols-1 gap-6 md:grid-cols-[1.4fr_1fr_1fr]">
           {/* FEED */}
           <div className="rounded-xl border border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.02)] p-6">
             <div className="flex items-center justify-between border-b border-[rgba(255,255,255,0.06)] pb-3">
